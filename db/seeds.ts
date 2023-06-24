@@ -75,63 +75,9 @@ const seed = async () => {
         description: description,
         sell_month: sellMonth,
         sell_year: sellYear,
-      },
+      }
     })
 
-    const picture = await db.pictures.create({
-      data: {
-        name: faker.internet.userName(),
-        href: faker.internet.url(),
-      },
-    })
-
-    const productPictures = await db.product_Pictures.create({
-      data: {
-        idProduct: product.id,
-        idPicture:  picture.id
-      },
-    })
-
-    const category = await db.category.create({
-      data: {
-        name: faker.commerce.department(),
-      },
-    })
-
-    const productCategory = await db.product_Category.create({
-      data: {
-        idProduct: product.id,
-        idCategory: faker.datatype.number({ min: 1, max: i }),
-        },
-    })
-
-    const card = await db.card.create({
-      data: {
-        idUser: faker.datatype.number({ min: 1, max: i }), // Replace with appropriate range based on your users
-      },
-    })
-
-    const productCard = await db.product_Card.create({
-      data: {
-        idProduct: faker.datatype.number({ min: 1, max: i }), // Replace with appropriate range based on your products
-        idCard: faker.datatype.number({ min: 1, max: i }), // Replace with appropriate range based on your cards
-      },
-    })
-
-    const wishlist = await db.wishlist.create({
-      data: {
-        name: faker.lorem.word(),
-        idUser: faker.datatype.number({ min: 1, max: i }), // Replace with appropriate range based on your users
-        idProduct: faker.datatype.number({ min: 1, max: i }), // Replace with appropriate range based on your products
-      },
-    })
-
-    const productWishlist = await db.product_Wishlist.create({
-      data: {
-        idProduct: faker.datatype.number({ min: 1, max: i }), // Replace with appropriate range based on your products
-        idWishlist: faker.datatype.number({ min: 1, max: i }), // Replace with appropriate range based on your wishlists
-      },
-    })
 
     const review = await db.review.create({
       data: {
@@ -142,6 +88,47 @@ const seed = async () => {
       },
     })
 
+    const picture = await db.pictures.create({
+      data: {
+        name: faker.internet.userName(),
+        href: faker.internet.url(),
+        productId: faker.datatype.number({ min: 1, max: i }), // Replace with appropriate range based on your products
+      },
+    })
+
+    const category = await db.category.create({
+      data: {
+        name: faker.commerce.department(),
+      },
+    })
+
+    await db.category.update({
+      where: { id: faker.datatype.number({ min: 1, max: i }) },
+      data: { product: { connect: { id: faker.datatype.number({ min: 1, max: i }) } } },
+    });
+
+    const card = await db.card.create({
+      data: {
+        idUser: user.id, // Replace with appropriate range based on your users
+      },
+    })
+
+    await db.card.update({
+      where: { id: faker.datatype.number({ min: 1, max: i }) },
+      data: { products: { connect: { id: faker.datatype.number({ min: 1, max: i }) } } },
+    });
+
+    const wishList = await db.wishlist.create({
+      data: {
+        idUser: faker.datatype.number({ min: 1, max: i, precision: 1 }), // Replace with appropriate range based on your users
+        name: faker.commerce.productName(),
+      }
+    })
+
+    await db.wishlist.update({
+      where: { id: faker.datatype.number({ min: 1, max: i }) },
+      data: { products: { connect: { id: faker.datatype.number({ min: 1, max: i }) } } },
+    });
     const bdc = await db.bDC.create({
       data: {
         // Add appropriate fields for BDC model
