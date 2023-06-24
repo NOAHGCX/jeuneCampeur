@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
-  provider = "sqlite"
+  provider = "posgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -13,16 +13,164 @@ generator client {
 // --------------------------------------
 
 model User {
-  id             Int      @id @default(autoincrement())
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  name           String?
-  email          String   @unique
+  id             Int            @id @default(autoincrement())
+  username       String
+  first_name     String
+  last_name      String
   hashedPassword String?
-  role           String   @default("USER")
+  email          String         @unique
+  phone          String         @unique
+  role           String         @default("USER")
+  connection_nb  Int
+  purchase_month Int
+  purchase_year  Int
+  address_base   Address_Base[]
+  address_fact   Address_Fact[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  last_connexion DateTime       @updatedAt
+}
 
-  tokens   Token[]
-  sessions Session[]
+model Address_Fact {
+  id            Int      @id @default(autoincrement())
+  first_name    String
+  last_name     String
+  email         String   @unique
+  number        Int
+  road          String
+  city          String
+  department    String
+  country       String
+  postcode      String
+  complimentary String
+  userID        Int
+  user          User     @relation(fields: [userID], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Address_Base {
+  id            Int      @id @default(autoincrement())
+  number        Int
+  road          String
+  city          String
+  department    String
+  country       String
+  postcode      String
+  complimentary String
+  userID        Int
+  user          User     @relation(fields: [userID], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Products {
+  id           Int                @id @default(autoincrement())
+  name         String
+  price        Float
+  stock        Int
+  description  String
+  sell_month   Int
+  sell_year    Int
+  product_img  Product_Pictures[]
+  product_cat  Product_Category[]
+  product_card Product_Card[]
+  product_wish Product_Wishlist[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+}
+
+model Product_Pictures {
+  id        Int      @id @default(autoincrement())
+  product   Product  @relation(fields: [idProduct], references: [id])
+  picture   Pictures @relation(fields: [idPicture], references: [id])
+  idProduct Int
+  idPicture Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Pictures {
+  id          Int                @id @default(autoincrement())
+  name        String
+  href        String
+  product_img Product_Pictures[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model Product_Category {
+  id         Int      @id @default(autoincrement())
+  idProduct  Int
+  idCategory Int
+  product    Product  @relation(fields: [idProduct], references: [id])
+  category   Category @relation(fields: [idCategory], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Category {
+  id          Int                @id @default(autoincrement())
+  name        String
+  product_cat Product_Category[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model Product_Card {
+  id        Int      @id @default(autoincrement())
+  idProduct Int
+  idCard    Int
+  product   Product  @relation(fields: [idProduct], references: [id])
+  card      Card     @relation(fields: [idCard], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Card {
+  id           Int            @id @default(autoincrement())
+  idUser       Int
+  product_card Product_Card[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model Product_Wishlist {
+  id         Int      @id @default(autoincrement())
+  idProduct  Int
+  idWishlist Int
+  product    Product  @relation(fields: [idProduct], references: [id])
+  wishlist   Wishlist @relation(fields: [idWishlist], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Wishlist {
+  id           Int                @id @default(autoincrement())
+  name         String
+  idUser       Int
+  idProduct    Int
+  user         User[]
+  product_wish Product_Wishlist[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  grade     Int
+  comment   String
+  idProduct Int
+  idUser    Int
+  product   Product  @relation(fields: [idProduct], references: [id])
+  user      User     @relation(fields: [idUser], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BDC {
+  id Int @id @default(autoincrement())
+  // A completer
 }
 
 model Session {
