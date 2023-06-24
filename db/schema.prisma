@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
-  provider = "posgresql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -29,6 +29,11 @@ model User {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   last_connexion DateTime       @updatedAt
+  Wishlist       Wishlist?      @relation(fields: [wishlistId], references: [id])
+  wishlistId     Int?
+  Review         Review[]
+  Session        Session[]
+  Token          Token[]
 }
 
 model Address_Fact {
@@ -64,7 +69,7 @@ model Address_Base {
   updatedAt     DateTime @updatedAt
 }
 
-model Products {
+model Product {
   id           Int                @id @default(autoincrement())
   name         String
   price        Float
@@ -78,6 +83,7 @@ model Products {
   product_wish Product_Wishlist[]
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
+  Review       Review[]
 }
 
 model Product_Pictures {
