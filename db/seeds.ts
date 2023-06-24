@@ -99,7 +99,7 @@ const seed = async () => {
     const productCategory = await db.product_Category.create({
       data: {
         idProduct: product.id,
-        idCategory: category.id
+        idCategory: faker.datatype.number({ min: 1, max: i }),
         },
     })
 
