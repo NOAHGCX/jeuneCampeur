@@ -68,19 +68,16 @@ const TableUser = () => {
   if (keywords !== null && keywords !== undefined && keywords !== "") {
     queryOptions.where = {
       OR: [
-        { id: keywords },
+        { id: parseInt(keywords) || undefined },
         { username: keywords },
         { first_name: keywords },
         { last_name: keywords },
-        { hashedPassword: keywords },
-        {email: keywords },
+        { email: keywords },
         { phone: keywords },
         { role: keywords },
-        { connection_nb: keywords },
-        { purchase_month: keywords },
-        { purchase_year: keywords },
-        { address_base: keywords },
-        {address_fact: keywords },
+        { connection_nb:  parseInt(keywords) || undefined },
+        { purchase_month:  parseInt(keywords) || undefined },
+        { purchase_year:  parseInt(keywords) || undefined  },
       ],
     }
   }
