@@ -33,6 +33,7 @@
     "next": "^13.3.0",
     "prisma": "4.6.1",
     "react": "18.2.0",
+    "react-csv": "2.2.2",
     "react-dom": "18.2.0",
     "react-final-form": "6.5.9",
     "secure-password": "4.0.0",

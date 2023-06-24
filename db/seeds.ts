@@ -11,6 +11,7 @@ const seed = async () => {
     const lastName = faker.person.lastName()
     const email = faker.internet.email({ firstName, lastName })
     const password = faker.internet.password({ length: 10 })
+    console.log(email, password)
     const hashedPassword = await SecurePassword.hash(password.trim())
     const phone = faker.phone.number()
 
@@ -19,6 +20,7 @@ const seed = async () => {
         username: username,
         first_name: firstName,
         last_name: lastName,
+        birth_date: faker.date.past(50),
         hashedPassword: hashedPassword,
         email: email,
         phone: phone,

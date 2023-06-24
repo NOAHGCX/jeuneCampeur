@@ -32,10 +32,28 @@ export const SignupForm = (props: SignupFormProps) => {
           }
         }}
       >
-        <LabeledTextField name="email" label="Email" placeholder="Email" />
-        <LabeledTextField name="password" label="Password" placeholder="Password" type="password" />
-      </Form>
+         <div>
+      <LabeledTextField name="first_name" label="Prénom" placeholder="Prénom" />
+      <LabeledTextField name="last_name" label="Nom" placeholder="Nom" />
+      <LabeledTextField
+        name="password"
+        label="Mot de passe"
+        placeholder="Mot de passe"
+        type="password"
+      />
+      <LabeledTextField name="email" label="Email" placeholder="Email" />
+      <LabeledTextField
+        name="phone"
+        label="Numéro de téléphone"
+        placeholder="0XXXXXXXXX"
+        type="tel"
+        pattern="[0-9]{10}"
+      />
+      <button type="submit" />
     </div>
+    </Form>
+    </div>
+
   )
 }
 
