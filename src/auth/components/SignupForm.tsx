@@ -16,11 +16,23 @@ export const SignupForm = (props: SignupFormProps) => {
 
       <Form
         submitText="Create Account"
-        schema={Signup}
         initialValues={{ email: "", password: "" }}
         onSubmit={async (values) => {
           try {
-            await signupMutation(values)
+            let human = {
+              username: values.username,
+              first_name: values.first_name,
+              last_name: values.last_name,
+              birth_date: new Date(values.birth_date),
+              password: values.password,
+              email: values.email,
+              phone: values.phone,
+              role: "USER" as any,
+              connection_nb: 0,
+              purchase_month: 0,
+              purchase_year: 0,
+            }
+            await signupMutation(human)
             props.onSuccess?.()
           } catch (error: any) {
             if (error.code === "P2002" && error.meta?.target?.includes("email")) {
@@ -33,6 +45,7 @@ export const SignupForm = (props: SignupFormProps) => {
         }}
       >
          <div>
+      <LabeledTextField name="username" label="Nom d'utilisateur" placeholder="Nom d'utilisateur" />
       <LabeledTextField name="first_name" label="Prénom" placeholder="Prénom" />
       <LabeledTextField name="last_name" label="Nom" placeholder="Nom" />
       <LabeledTextField
@@ -42,6 +55,7 @@ export const SignupForm = (props: SignupFormProps) => {
         type="password"
       />
       <LabeledTextField name="email" label="Email" placeholder="Email" />
+      <LabeledTextField name="birth_date" label="Date de naissance" type="date" />
       <LabeledTextField
         name="phone"
         label="Numéro de téléphone"

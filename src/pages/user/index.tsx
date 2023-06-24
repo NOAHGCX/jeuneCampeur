@@ -81,10 +81,6 @@ const TableUser = () => {
         { purchase_year: keywords },
         { address_base: keywords },
         {address_fact: keywords },
-        { createdAt: keywords },
-        { updatedAt: keywords },
-        { last_connexion: keywords },
-        { userId: keywords},
       ],
     }
   }
@@ -196,21 +192,6 @@ const TableUser = () => {
           },
         },
         {
-          id: "hashedPassword",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "hashedPassword",
-            text: "Mot de Passe",
-            order: true,
-            orderColumn: "hashedPassword",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.hashedPassword,
-          },
-        },
-        {
           id: "email",
           th: {
             currentOrder,
@@ -301,36 +282,6 @@ const TableUser = () => {
           },
         },
         {
-          id: "address_base",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "address_base",
-            text: "Adresse de base",
-            order: true,
-            orderColumn: "address_base",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.address_base,
-          },
-        },
-        {
-          id: "address_fact",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "address_fact",
-            text: "Adresse de facturation",
-            order: true,
-            orderColumn: "address_fact",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.address_fact,
-          },
-        },
-        {
           id: "createdAt",
           th: {
             currentOrder,
@@ -372,7 +323,7 @@ const TableUser = () => {
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.last_connexion,
+            text: (item: any) => item.last_connexion.toLocaleString(),
           },
         },
         {
