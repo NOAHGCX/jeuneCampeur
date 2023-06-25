@@ -50,7 +50,7 @@ const UserInfo = () => {
 }
 
 const TableUser = () => {
-  const [keywords, setKeywords] = useState(null)
+  const [keywords, setKeywords] = useState("")
   const [items, setItems] = useState<any>()
   const [itemsPerPage, setItemsPerPage] = useState(60)
   const [currentOrder, setCurrentOrder] = useState<any>({ id: "asc" })
