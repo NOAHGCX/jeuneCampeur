@@ -8,7 +8,6 @@ import getReviewsProduct from "src/reviews/queries/getReviewsProduct"
 
 type ReviewsProps = {
   productId?: string | string[]
-
 }
 const ReviewsComponent = (props: ReviewsProps) => {
   const [reviewMutation] = useMutation(createReviews)

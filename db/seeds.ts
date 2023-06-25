@@ -113,10 +113,6 @@ const seed = async () => {
       },
     })
 
-    await db.card.update({
-      where: { id: faker.datatype.number({ min: 1, max: i }) },
-      data: { products: { connect: { id: faker.datatype.number({ min: 1, max: i }) } } },
-    });
 
     const wishList = await db.wishlist.create({
       data: {
@@ -131,10 +127,27 @@ const seed = async () => {
     });
     const bdc = await db.bDC.create({
       data: {
+        idUser: faker.datatype.number({ min: 1, max: i, precision: 1 }), // Replace with appropriate range based on your users
         // Add appropriate fields for BDC model
       },
     })
-  }
+
+    const bdcProduct = await db.product_BDC.create({
+      data: {
+        idBDC: faker.datatype.number({ min: 1, max: i, precision: 1 }), // Replace with appropriate range based on your BDCs
+        idProduct: faker.datatype.number({ min: 1, max: i }), // Replace with appropriate range based on your products
+        quantity: faker.datatype.number({ min: 1, max: i }),
+      },
+    })
+
+    const productCard = await db.product_Card.create({
+      data: {
+        idCard: faker.datatype.number({ min: 1, max: i, precision: 1 }), // Replace with appropriate range based on your cards
+        idProduct: faker.datatype.number({ min: 1, max: i }), // Replace with appropriate range based on your products
+        quantity: faker.datatype.number({ min: 1, max: i }),
+      },
+    })
+}
 }
 
 export default seed
