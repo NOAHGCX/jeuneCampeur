@@ -82,10 +82,10 @@ model Product {
 
   pictures     Pictures[]
   categories   Category[]
-  cards        Card[]
   wishlists    Wishlist[]
   reviews      Review[]
-  product_card Product_Card?
+  product_card Product_Card[]
+  product_bdc  Product_BDC[]
 }
 
 model Product_Card {
@@ -94,10 +94,10 @@ model Product_Card {
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
 
-  idProduct   Int                @unique
-  idCard      Int                @unique
-  product     Product            @relation(fields: [idProduct], references: [id])
   card        Card               @relation(fields: [idCard], references: [id])
+  idCard      Int
+  product     Product            @relation(fields: [idProduct], references: [id])
+  idProduct   Int
 }
 
 
@@ -129,7 +129,7 @@ model Card {
 
   idUser       Int            @unique
   user         User           @relation(fields: [idUser], references: [id])
-  products      Product[]
+  product_Card Product_Card[]
 }
 
 model Wishlist {
@@ -162,7 +162,19 @@ model BDC {
   updatedAt   DateTime           @updatedAt
 
   idCard      Int                @unique
-  card        Card               @relation(fields: [idCard], references: [id])
+  product_BDC Product_BDC[]
+}
+
+model Product_BDC {
+  id          Int                @id @default(autoincrement())
+  number      Int
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  bdc         BDC               @relation(fields: [idBDC], references: [id])
+  idBDC      Int
+  product     Product            @relation(fields: [idProduct], references: [id])
+  idProduct   Int
 }
 
 model Session {
