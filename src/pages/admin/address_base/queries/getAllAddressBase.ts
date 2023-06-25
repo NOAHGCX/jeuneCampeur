@@ -1,0 +1,31 @@
+import { paginate } from "blitz"
+import { resolver } from "@blitzjs/rpc"
+
+import db, { Prisma } from "db"
+
+interface GetAddressBase
+  extends Pick<Prisma.UserFindManyArgs, "where" | "orderBy" | "skip" | "take" | "include"> {}
+
+export default resolver.pipe(
+  resolver.authorize(),
+  async ({ where, orderBy, skip = 0, take = 100 }: GetAddressBase) => {
+    const {
+      items: address_base,
+      hasMore,
+      nextPage,
+      count,
+    } = await paginate({
+      skip,
+      take,
+      count: () => db.address_Base.count({ where }),
+      query: (paginateArgs) => db.address_Base.findMany({ ...paginateArgs, where, orderBy }),
+    })
+
+    return {
+      address_Base: address_base,
+      nextPage,
+      hasMore,
+      count,
+    }
+  }
+)

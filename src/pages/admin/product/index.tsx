@@ -7,7 +7,7 @@ import { useMutation, usePaginatedQuery, useQuery } from "@blitzjs/rpc"
 import { Routes, BlitzPage } from "@blitzjs/next"
 import styles from "src/styles/Home.module.css"
 import Table from "src/core/components/table/Table"
-import getAllAddressFact from "src/pages/adresse_fact/queries/getAllAddressFact"
+import getAllProduct from "src/pages/admin/product/queries/getAllProduct"
 /*
  * This file is just for a pleasant getting started page for your new app.
  * You can delete everything in here and start from scratch if you like.
@@ -38,7 +38,7 @@ const UserInfo = () => {
   } else {
     return (
       <>
-        <Link href={Routes.SignupPage({ role: "address_fact" })} className={styles.button}>
+        <Link href={Routes.SignupPage({ role: "ADMIN" })} className={styles.button}>
           <strong>Sign Up</strong>
         </Link>
         <Link href={Routes.LoginPage()} className={styles.loginButton}>
@@ -49,8 +49,8 @@ const UserInfo = () => {
   }
 }
 
-const TableAddressFact = () => {
-  const [keywords, setKeywords] = useState(null)
+const TableProduct = () => {
+  const [keywords, setKeywords] = useState("")
   const [items, setItems] = useState<any>()
   const [itemsPerPage, setItemsPerPage] = useState(60)
   const [currentOrder, setCurrentOrder] = useState<any>({ id: "asc" })
@@ -68,33 +68,25 @@ const TableAddressFact = () => {
   if (keywords !== null && keywords !== undefined && keywords !== "") {
     queryOptions.where = {
       OR: [
-        { id: keywords },
-        { first_name: keywords },
-        { last_name: keywords },
-        { email: keywords },
-        { number: keywords },
-        { road: keywords },
-        { city: keywords },
-        { department: keywords },
-        { country: keywords },
-        { postcode: keywords },
-        { complimentary: keywords },
-        { userId: keywords},
-        { user: keywords },
-        { createdAt: keywords },
-        { updatedAt: keywords },
+        { id: parseInt(keywords) || undefined },
+        { name: keywords },
+        // { categories: keywords },
+        { price: parseInt(keywords) || undefined },
+        { stock: parseInt(keywords) || undefined },
+        { sell_month: parseInt(keywords) || undefined },
+        { sell_year: parseInt(keywords) || undefined },
       ],
     }
   }
 
-  const [{ address_fact, count }, { refetch }] = usePaginatedQuery(getAllAddressFact, queryOptions)
+  const [{ product, count }, { refetch }] = usePaginatedQuery(getAllProduct, queryOptions)
 
   useEffect(() => {
-    console.log(address_fact)
+    console.log(product)
     console.log(keywords)
     console.log(currentOrder)
-    setItems(address_fact)
-  }, [address_fact, keywords, currentOrder])
+    setItems(product)
+  }, [product, keywords, currentOrder])
 
   return (
     <Table
@@ -104,27 +96,19 @@ const TableAddressFact = () => {
       setSelectAll={setSelectAll}
       exportPartial={true}
       exportAll={true}
-      add={"/user/creation"}
+      add={"/product/creation"}
       exportKey={[
         { label: "Id", key: "id" },
-        { label: "Prénom", key: "first_name" },
-        { label: "Nom", key: "last_name" },
-        { label: "Email", key: "email" },
-        { label: "Telephone", key: "number" },
-        { label: "Rue", key: "road" },
-        { label: "Ville", key: "city" },
-        { label: "Departement", key: "department" },
-        { label: "Pays", key: "country" },
-        { label: "Code postal", key: "postcode" },
-        { label: "Appartement", key: "complimentary" },
-        { label: "userID", key: "userID" },
-        { label: "user", key: "user" },
-        { label: "Créé le", key: "createdAt" },
-        { label: "Mis à jour le", key: "updatedAt" },
+        { label: "Nom du produit", key: "name" },
+        { label: "Prix", key: "price" },
+        { label: "Stock", key: "stock" },
+        { label: "Description", key: "description" },
+        { label: "Vente du mois de l'item", key: "sell_month" },
+        { label: "Vente de l'année de l'item", key: "sell_year" },
       ]}
-      titre={`Liste des adresses de facturation`}
-      key="table_liste_address_fact"
-      id="table_liste_address_fact"
+      titre={`Liste des produits`}
+      key="table_liste_products"
+      id="table_liste_products"
       setItemsPerPage={setItemsPerPage}
       itemsPerPage={itemsPerPage}
       multiSelect={false}
@@ -164,213 +148,123 @@ const TableAddressFact = () => {
           },
         },
         {
-          id: "first_name",
+          id: "name",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "first_name",
-            text: "Prénom",
+            colone: "name",
+            text: "Nom de l'item",
             order: true,
-            orderColumn: "first_name",
+            orderColumn: "name",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.first_name,
+            text: (item: any) => item.name,
           },
         },
         {
-          id: "last_name",
+          id: "price",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "last_name",
-            text: "Nom",
+            colone: "price",
+            text: "Prix",
             order: true,
-            orderColumn: "last_name",
+            orderColumn: "price",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.last_name,
+            text: (item: any) => item.price,
           },
         },
         {
-          id: "email",
+          id: "stock",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "email",
-            text: "Email",
+            colone: "stock",
+            text: "Stock",
             order: true,
-            orderColumn: "email",
+            orderColumn: "stock",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.email,
+            text: (item: any) => item.stock,
           },
         },
         {
-          id: "number",
+          id: "categories",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "number",
-            text: "Numero de telephone",
+            colone: "categories",
+            text: "Categorie",
             order: true,
-            orderColumn: "number",
+            orderColumn: "categories",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.number,
+            text: (item: any) => item.categories,
           },
         },
         {
-          id: "road",
+          id: "description",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "road",
-            text: "Rue",
+            colone: "description",
+            text: "Description",
             order: true,
-            orderColumn: "road",
+            orderColumn: "description",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.road,
+            text: (item: any) => item.description,
           },
         },
         {
-          id: "city",
+          id: "sell_month",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "city",
-            text: "Ville",
+            colone: "sell_month",
+            text: "Vente au mois",
             order: true,
-            orderColumn: "city",
+            orderColumn: "sell_month",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.city,
+            text: (item: any) => item.sell_month,
           },
         },
         {
-          id: "department",
+          id: "sell_year",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "department",
-            text: "Departement",
+            colone: "sell_year",
+            text: "Vente sur un an",
             order: true,
-            orderColumn: "department",
+            orderColumn: "sell_year",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.department,
+            text: (item: any) => item.sell_year,
           },
         },
         {
-          id: "country",
+          id: "pictures",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "country",
-            text: "Pays",
+            colone: "pictures",
+            text: "Image du produit",
             order: true,
-            orderColumn: "country",
+            orderColumn: "pictures",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.country,
-          },
-        },
-        {
-          id: "postcode",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "postcode",
-            text: "Code postal",
-            order: true,
-            orderColumn: "postcode",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.postcode,
-          },
-        },
-        {
-          id: "complimentary",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "complimentary",
-            text: "Appartement",
-            order: true,
-            orderColumn: "complimentary",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.complimentary,
-          },
-        },
-        {
-          id: "userID",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "userID",
-            text: "userID",
-            order: true,
-            orderColumn: "userID",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.userID,
-          },
-        },
-        {
-          id: "user",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "user",
-            text: "user",
-            order: true,
-            orderColumn: "user",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.user,
-          },
-        },
-        {
-          id: "createdAt",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "createdAt",
-            text: "Créé le",
-            order: true,
-            orderColumn: "createdAt",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.createdAt.toLocaleString(),
-          },
-        },
-        {
-          id: "updatedAt",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "updatedAt",
-            text: "Mis à jour le",
-            order: true,
-            orderColumn: "updatedAt",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.updatedAt.toLocaleString(),
+            text: (item: any) => item.pictures,
           },
         },
         {
@@ -412,22 +306,22 @@ const TableAddressFact = () => {
           },
         },
       ]}
-      empty="Aucune entreprise."
+      empty="Aucun produit."
     />
   )
 }
 
-const HomeAddressFact: BlitzPage = () => {
+const HomeProduct: BlitzPage = () => {
   return (
     <Layout title="Home">
       <Suspense fallback="Loading...">
         <UserInfo />
       </Suspense>
       <Suspense fallback="Loading...">
-        <TableAddressFact />
+        <TableProduct />
       </Suspense>
     </Layout>
   )
 }
 
-export default HomeAddressFact
+export default HomeProduct

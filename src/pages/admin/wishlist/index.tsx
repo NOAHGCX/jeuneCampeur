@@ -7,7 +7,7 @@ import { useMutation, usePaginatedQuery, useQuery } from "@blitzjs/rpc"
 import { Routes, BlitzPage } from "@blitzjs/next"
 import styles from "src/styles/Home.module.css"
 import Table from "src/core/components/table/Table"
-import getAllUser from "src/pages/user/queries/getAllUser"
+import getAllWishlist from "src/pages/admin/wishlist/queries/getAllWishlist"
 /*
  * This file is just for a pleasant getting started page for your new app.
  * You can delete everything in here and start from scratch if you like.
@@ -38,7 +38,7 @@ const UserInfo = () => {
   } else {
     return (
       <>
-        <Link href={Routes.SignupPage({ role: "user" })} className={styles.button}>
+        <Link href={Routes.SignupPage({ role: "ADMIN" })} className={styles.button}>
           <strong>Sign Up</strong>
         </Link>
         <Link href={Routes.LoginPage()} className={styles.loginButton}>
@@ -49,7 +49,7 @@ const UserInfo = () => {
   }
 }
 
-const TableUser = () => {
+const TableWishlist = () => {
   const [keywords, setKeywords] = useState("")
   const [items, setItems] = useState<any>()
   const [itemsPerPage, setItemsPerPage] = useState(60)
@@ -69,27 +69,21 @@ const TableUser = () => {
     queryOptions.where = {
       OR: [
         { id: parseInt(keywords) || undefined },
-        { username: keywords },
-        { first_name: keywords },
-        { last_name: keywords },
-        { email: keywords },
-        { phone: keywords },
-        { role: keywords },
-        { connection_nb:  parseInt(keywords) || undefined },
-        { purchase_month:  parseInt(keywords) || undefined },
-        { purchase_year:  parseInt(keywords) || undefined  },
+        { name: keywords },
+        { idUser: parseInt(keywords) || undefined },
+        { idProduct: parseInt(keywords) || undefined },
       ],
     }
   }
 
-  const [{ user, count }, { refetch }] = usePaginatedQuery(getAllUser, queryOptions)
+  const [{ wishlist, count }, { refetch }] = usePaginatedQuery(getAllWishlist, queryOptions)
 
   useEffect(() => {
-    console.log(user)
+    console.log(wishlist)
     console.log(keywords)
     console.log(currentOrder)
-    setItems(user)
-  }, [user, keywords, currentOrder])
+    setItems(wishlist)
+  }, [wishlist, keywords, currentOrder])
 
   return (
     <Table
@@ -99,27 +93,19 @@ const TableUser = () => {
       setSelectAll={setSelectAll}
       exportPartial={true}
       exportAll={true}
-      add={"/user/creation"}
+      add={"/wishlist/creation"}
       exportKey={[
         { label: "Id", key: "id" },
-        { label: "Prénom", key: "first_name" },
         { label: "Nom", key: "last_name" },
-        { label: "Mot de Passe", key: "hashedPassword" },
-        { label: "Email", key: "email" },
-        { label: "Telephone", key: "phone" },
-        { label: "Role", key: "role" },
-        { label: "Nombre de connection", key: "connection_nb" },
-        { label: "Nombre d'achat du mois", key: "purchase_month" },
-        { label: "Nombre d'achat par an", key: "purchase_year" },
-        { label: "Adresse de base", key: "address_base" },
-        { label: "Adresse de facturation", key: "address_fact" },
+        { label: "idUser", key: "idUser" },
+        { label: "idProduct", key: "idProduct" },
+        { label: "Liste de voeux", key: "product_wish" },
         { label: "Créé le", key: "createdAt" },
         { label: "Mis à jour le", key: "updatedAt" },
-        { label: "Derniere connection", key: "last_connexion" },
       ]}
-      titre={`Liste des utilisateurs`}
-      key="table_liste_users"
-      id="table_liste_users"
+      titre={`Liste des wishlists`}
+      key="table_liste_wishlist"
+      id="table_liste_wishlist"
       setItemsPerPage={setItemsPerPage}
       itemsPerPage={itemsPerPage}
       multiSelect={false}
@@ -159,123 +145,63 @@ const TableUser = () => {
           },
         },
         {
-          id: "first_name",
+          id: "name",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "first_name",
-            text: "Prénom",
+            colone: "name",
+            text: "Nom de la wishlist",
             order: true,
-            orderColumn: "first_name",
+            orderColumn: "name",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.first_name,
+            text: (item: any) => item.name,
           },
         },
         {
-          id: "last_name",
+          id: "idUser",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "last_name",
-            text: "Nom",
+            colone: "idUser",
+            text: "idUser",
             order: true,
-            orderColumn: "last_name",
+            orderColumn: "idUser",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.last_name,
+            text: (item: any) => item.idUser,
           },
         },
         {
-          id: "email",
+          id: "idProduct",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "email",
-            text: "Email",
+            colone: "idProduct",
+            text: "idProduct",
             order: true,
-            orderColumn: "email",
+            orderColumn: "idProduct",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.email,
+            text: (item: any) => item.idProduct,
           },
         },
         {
-          id: "phone",
+          id: "product_wish",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "phone",
-            text: "Numero de telephone",
+            colone: "product_wish",
+            text: "Liste de souhaits",
             order: true,
-            orderColumn: "phone",
+            orderColumn: "product_wish",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.phone,
-          },
-        },
-        {
-          id: "role",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "role",
-            text: "Role",
-            order: true,
-            orderColumn: "role",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.role,
-          },
-        },
-        {
-          id: "connection_nb",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "connection_nb",
-            text: "Nombre de connexion",
-            order: true,
-            orderColumn: "connection_nb",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.connection_nb,
-          },
-        },
-        {
-          id: "purchase_month",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "purchase_month",
-            text: "Nombre d'achat du mois",
-            order: true,
-            orderColumn: "purchase_month",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.purchase_month,
-          },
-        },
-        {
-          id: "purchase_year",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "purchase_year",
-            text: "Nombre d'achat par an",
-            order: true,
-            orderColumn: "purchase_year",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.purchase_year,
+            text: (item: any) => item.product_wish,
           },
         },
         {
@@ -306,21 +232,6 @@ const TableUser = () => {
           },
           td: {
             text: (item: any) => item.updatedAt.toLocaleString(),
-          },
-        },
-        {
-          id: "last_connexion",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "last_connexion",
-            text: "Derniere connexion",
-            order: true,
-            orderColumn: "last_connexion",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.last_connexion.toLocaleString(),
           },
         },
         {
@@ -362,22 +273,22 @@ const TableUser = () => {
           },
         },
       ]}
-      empty="Aucune entreprise."
+      empty="Aucune wishlist."
     />
   )
 }
 
-const HomeUser: BlitzPage = () => {
+const HomeWishlist: BlitzPage = () => {
   return (
     <Layout title="Home">
       <Suspense fallback="Loading...">
         <UserInfo />
       </Suspense>
       <Suspense fallback="Loading...">
-        <TableUser />
+        <TableWishlist />
       </Suspense>
     </Layout>
   )
 }
 
-export default HomeUser
+export default HomeWishlist
