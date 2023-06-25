@@ -92,7 +92,7 @@ const TableCard = () => {
       setSelectAll={setSelectAll}
       exportPartial={true}
       exportAll={true}
-      add={"/user/creation"}
+      add={"/card/creation"}
       exportKey={[
         { label: "Id", key: "id" },
         { label: "idUser", key: "idUser" },

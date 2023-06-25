@@ -69,19 +69,21 @@ const TableWishlist = () => {
     queryOptions.where = {
       OR: [
         { id: parseInt(keywords) || undefined },
-        // { name: keywords },
+        { name: keywords },
+        { idUser: parseInt(keywords) || undefined },
+        { idProduct: parseInt(keywords) || undefined },
       ],
     }
   }
 
-  const [{ user, count }, { refetch }] = usePaginatedQuery(getAllWishlist, queryOptions)
+  const [{ wishlist, count }, { refetch }] = usePaginatedQuery(getAllWishlist, queryOptions)
 
   useEffect(() => {
-    console.log(user)
+    console.log(wishlist)
     console.log(keywords)
     console.log(currentOrder)
-    setItems(user)
-  }, [user, keywords, currentOrder])
+    setItems(wishlist)
+  }, [wishlist, keywords, currentOrder])
 
   return (
     <Table
@@ -91,13 +93,12 @@ const TableWishlist = () => {
       setSelectAll={setSelectAll}
       exportPartial={true}
       exportAll={true}
-      add={"/user/creation"}
+      add={"/wishlist/creation"}
       exportKey={[
         { label: "Id", key: "id" },
         { label: "Nom", key: "last_name" },
         { label: "idUser", key: "idUser" },
         { label: "idProduct", key: "idProduct" },
-        { label: "Utilisateur", key: "user" },
         { label: "Liste de voeux", key: "product_wish" },
         { label: "Créé le", key: "createdAt" },
         { label: "Mis à jour le", key: "updatedAt" },
@@ -189,21 +190,6 @@ const TableWishlist = () => {
           },
         },
         {
-          id: "user",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "user",
-            text: "Utilisateur",
-            order: true,
-            orderColumn: "user",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.user,
-          },
-        },
-        {
           id: "product_wish",
           th: {
             currentOrder,
@@ -287,12 +273,12 @@ const TableWishlist = () => {
           },
         },
       ]}
-      empty="Aucune adresse de facturation."
+      empty="Aucune wishlist."
     />
   )
 }
 
-const HomeAddressFact: BlitzPage = () => {
+const HomeWishlist: BlitzPage = () => {
   return (
     <Layout title="Home">
       <Suspense fallback="Loading...">
@@ -305,4 +291,4 @@ const HomeAddressFact: BlitzPage = () => {
   )
 }
 
-export default HomeAddressFact
+export default HomeWishlist

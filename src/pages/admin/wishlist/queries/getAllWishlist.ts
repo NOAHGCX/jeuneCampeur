@@ -17,12 +17,12 @@ export default resolver.pipe(
     } = await paginate({
       skip,
       take,
-      count: () => db.user.count({ where }),
-      query: (paginateArgs) => db.user.findMany({ ...paginateArgs, where, orderBy }),
+      count: () => db.wishlist.count({ where }),
+      query: (paginateArgs) => db.wishlist.findMany({ ...paginateArgs, where, orderBy }),
     })
 
     return {
-      user: wishlists,
+      wishlist: wishlists,
       nextPage,
       hasMore,
       count,

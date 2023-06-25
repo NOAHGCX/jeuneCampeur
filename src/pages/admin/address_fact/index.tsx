@@ -98,7 +98,7 @@ const TableAddressFact = () => {
       setSelectAll={setSelectAll}
       exportPartial={true}
       exportAll={true}
-      add={"/user/creation"}
+      add={"/address_Fact/creation"}
       exportKey={[
         { label: "Id", key: "id" },
         { label: "Prénom", key: "first_name" },

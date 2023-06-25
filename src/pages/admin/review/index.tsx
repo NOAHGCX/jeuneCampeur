@@ -71,7 +71,6 @@ const TableReview = () => {
         { id: parseInt(keywords) || undefined },
         { idUser: parseInt(keywords) || undefined },
         { idProduct: parseInt(keywords) || undefined },
-        { comment: keywords },
         { grade: parseInt(keywords) },
       ],
     }
@@ -94,7 +93,7 @@ const TableReview = () => {
       setSelectAll={setSelectAll}
       exportPartial={true}
       exportAll={true}
-      add={"/user/creation"}
+      add={"/review/creation"}
       exportKey={[
         { label: "Id", key: "id" },
         { label: "Note", key: "grade" },

@@ -70,11 +70,11 @@ const TableProduct = () => {
       OR: [
         { id: parseInt(keywords) || undefined },
         { name: keywords },
-        // { categories: keywords }, RECHERCHE PAR CATEGORIE A FAIRE
-        // { price: parseInt(keywords) || undefined },
-        // { stock: parseInt(keywords) || undefined },
-        // { sell_month: parseInt(keywords) || undefined },
-        // { sell_year: parseInt(keywords) || undefined },
+        // { categories: keywords },
+        { price: parseInt(keywords) || undefined },
+        { stock: parseInt(keywords) || undefined },
+        { sell_month: parseInt(keywords) || undefined },
+        { sell_year: parseInt(keywords) || undefined },
       ],
     }
   }
@@ -105,12 +105,6 @@ const TableProduct = () => {
         { label: "Description", key: "description" },
         { label: "Vente du mois de l'item", key: "sell_month" },
         { label: "Vente de l'année de l'item", key: "sell_year" },
-
-        { label: "Image de l'item", key: "pictures" },
-        { label: "Categorie de l'item", key: "categories" },
-        { label: "Panier", key: "cards" },
-        { label: "Wishlist", key: "wishlists" },
-        { label: "Avis", key: "reviews" },
       ]}
       titre={`Liste des produits`}
       key="table_liste_products"
@@ -196,6 +190,21 @@ const TableProduct = () => {
           },
           td: {
             text: (item: any) => item.stock,
+          },
+        },
+        {
+          id: "categories",
+          th: {
+            currentOrder,
+            setCurrentOrder,
+            colone: "categories",
+            text: "Categorie",
+            order: true,
+            orderColumn: "categories",
+            thSpanClasses: "justify-content-between",
+          },
+          td: {
+            text: (item: any) => item.categories,
           },
         },
         {

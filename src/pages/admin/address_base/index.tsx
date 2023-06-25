@@ -95,7 +95,7 @@ const TableAddressBase = () => {
       setSelectAll={setSelectAll}
       exportPartial={true}
       exportAll={true}
-      add={"/user/creation"}
+      add={"/address_Base/creation"}
       exportKey={[
         { label: "Id", key: "id" },
         { label: "Numero", key: "number" },

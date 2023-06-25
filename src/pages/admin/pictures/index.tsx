@@ -92,7 +92,7 @@ const TablePictures = () => {
       setSelectAll={setSelectAll}
       exportPartial={true}
       exportAll={true}
-      add={"/user/creation"}
+      add={"/pictures/creation"}
       exportKey={[
         { label: "Id", key: "id" },
         { label: "Nom de l'image", key: "name" },
