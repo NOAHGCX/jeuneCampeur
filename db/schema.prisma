@@ -85,6 +85,19 @@ model Product {
   cards        Card[]
   wishlists    Wishlist[]
   reviews      Review[]
+  product_card Product_Card?
+}
+
+model Product_Card {
+  id          Int                @id @default(autoincrement())
+  number      Int
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  idProduct   Int                @unique
+  idCard      Int                @unique
+  product     Product            @relation(fields: [idProduct], references: [id])
+  card        Card               @relation(fields: [idCard], references: [id])
 }
 
 
@@ -112,6 +125,7 @@ model Card {
   id           Int            @id @default(autoincrement())
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+
 
   idUser       Int            @unique
   user         User           @relation(fields: [idUser], references: [id])
@@ -143,8 +157,12 @@ model Review {
 }
 
 model BDC {
-  id Int @id @default(autoincrement())
-  // A completer
+  id          Int                @id @default(autoincrement())
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  idCard      Int                @unique
+  card        Card               @relation(fields: [idCard], references: [id])
 }
 
 model Session {

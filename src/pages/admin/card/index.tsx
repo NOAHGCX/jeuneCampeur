@@ -7,7 +7,7 @@ import { useMutation, usePaginatedQuery, useQuery } from "@blitzjs/rpc"
 import { Routes, BlitzPage } from "@blitzjs/next"
 import styles from "src/styles/Home.module.css"
 import Table from "src/core/components/table/Table"
-import getAllAddressFact from "src/pages/adresse_fact/queries/getAllAddressFact"
+import getAllCard from "src/pages/admin/card/queries/getAllCard"
 /*
  * This file is just for a pleasant getting started page for your new app.
  * You can delete everything in here and start from scratch if you like.
@@ -38,7 +38,7 @@ const UserInfo = () => {
   } else {
     return (
       <>
-        <Link href={Routes.SignupPage({ role: "address_fact" })} className={styles.button}>
+        <Link href={Routes.SignupPage({ role: "user" })} className={styles.button}>
           <strong>Sign Up</strong>
         </Link>
         <Link href={Routes.LoginPage()} className={styles.loginButton}>
@@ -49,8 +49,8 @@ const UserInfo = () => {
   }
 }
 
-const TableAddressFact = () => {
-  const [keywords, setKeywords] = useState(null)
+const TableCard = () => {
+  const [keywords, setKeywords] = useState("")
   const [items, setItems] = useState<any>()
   const [itemsPerPage, setItemsPerPage] = useState(60)
   const [currentOrder, setCurrentOrder] = useState<any>({ id: "asc" })
@@ -68,33 +68,21 @@ const TableAddressFact = () => {
   if (keywords !== null && keywords !== undefined && keywords !== "") {
     queryOptions.where = {
       OR: [
-        { id: keywords },
-        { first_name: keywords },
-        { last_name: keywords },
-        { email: keywords },
-        { number: keywords },
-        { road: keywords },
-        { city: keywords },
-        { department: keywords },
-        { country: keywords },
-        { postcode: keywords },
-        { complimentary: keywords },
-        { userId: keywords},
-        { user: keywords },
-        { createdAt: keywords },
-        { updatedAt: keywords },
+        { id: parseInt(keywords) || undefined },
+        { idUser: parseInt(keywords) },
+        // { product_card: keywords },
       ],
     }
   }
 
-  const [{ address_fact, count }, { refetch }] = usePaginatedQuery(getAllAddressFact, queryOptions)
+  const [{ card, count }, { refetch }] = usePaginatedQuery(getAllCard, queryOptions)
 
   useEffect(() => {
-    console.log(address_fact)
+    console.log(card)
     console.log(keywords)
     console.log(currentOrder)
-    setItems(address_fact)
-  }, [address_fact, keywords, currentOrder])
+    setItems(card)
+  }, [card, keywords, currentOrder])
 
   return (
     <Table
@@ -107,24 +95,14 @@ const TableAddressFact = () => {
       add={"/user/creation"}
       exportKey={[
         { label: "Id", key: "id" },
-        { label: "Prénom", key: "first_name" },
-        { label: "Nom", key: "last_name" },
-        { label: "Email", key: "email" },
-        { label: "Telephone", key: "number" },
-        { label: "Rue", key: "road" },
-        { label: "Ville", key: "city" },
-        { label: "Departement", key: "department" },
-        { label: "Pays", key: "country" },
-        { label: "Code postal", key: "postcode" },
-        { label: "Appartement", key: "complimentary" },
-        { label: "userID", key: "userID" },
-        { label: "user", key: "user" },
+        { label: "idUser", key: "idUser" },
+        { label: "Panier", key: "product_card" },
         { label: "Créé le", key: "createdAt" },
         { label: "Mis à jour le", key: "updatedAt" },
       ]}
-      titre={`Liste des adresses de facturation`}
-      key="table_liste_address_fact"
-      id="table_liste_address_fact"
+      titre={`Liste des paniers`}
+      key="table_liste_card"
+      id="table_liste_card"
       setItemsPerPage={setItemsPerPage}
       itemsPerPage={itemsPerPage}
       multiSelect={false}
@@ -164,183 +142,33 @@ const TableAddressFact = () => {
           },
         },
         {
-          id: "first_name",
+          id: "idUser",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "first_name",
-            text: "Prénom",
+            colone: "idUser",
+            text: "idUser",
             order: true,
-            orderColumn: "first_name",
+            orderColumn: "idUser",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.first_name,
+            text: (item: any) => item.idUser,
           },
         },
         {
-          id: "last_name",
+          id: "product_card",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "last_name",
-            text: "Nom",
+            colone: "product_card",
+            text: "Panier",
             order: true,
-            orderColumn: "last_name",
+            orderColumn: "product_card",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.last_name,
-          },
-        },
-        {
-          id: "email",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "email",
-            text: "Email",
-            order: true,
-            orderColumn: "email",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.email,
-          },
-        },
-        {
-          id: "number",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "number",
-            text: "Numero de telephone",
-            order: true,
-            orderColumn: "number",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.number,
-          },
-        },
-        {
-          id: "road",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "road",
-            text: "Rue",
-            order: true,
-            orderColumn: "road",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.road,
-          },
-        },
-        {
-          id: "city",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "city",
-            text: "Ville",
-            order: true,
-            orderColumn: "city",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.city,
-          },
-        },
-        {
-          id: "department",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "department",
-            text: "Departement",
-            order: true,
-            orderColumn: "department",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.department,
-          },
-        },
-        {
-          id: "country",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "country",
-            text: "Pays",
-            order: true,
-            orderColumn: "country",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.country,
-          },
-        },
-        {
-          id: "postcode",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "postcode",
-            text: "Code postal",
-            order: true,
-            orderColumn: "postcode",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.postcode,
-          },
-        },
-        {
-          id: "complimentary",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "complimentary",
-            text: "Appartement",
-            order: true,
-            orderColumn: "complimentary",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.complimentary,
-          },
-        },
-        {
-          id: "userID",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "userID",
-            text: "userID",
-            order: true,
-            orderColumn: "userID",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.userID,
-          },
-        },
-        {
-          id: "user",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "user",
-            text: "user",
-            order: true,
-            orderColumn: "user",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.user,
+            text: (item: any) => item.product_card,
           },
         },
         {
@@ -412,22 +240,22 @@ const TableAddressFact = () => {
           },
         },
       ]}
-      empty="Aucune entreprise."
+      empty="Aucune adresse de facturation."
     />
   )
 }
 
-const HomeAddressFact: BlitzPage = () => {
+const HomeCard: BlitzPage = () => {
   return (
     <Layout title="Home">
       <Suspense fallback="Loading...">
         <UserInfo />
       </Suspense>
       <Suspense fallback="Loading...">
-        <TableAddressFact />
+        <TableCard />
       </Suspense>
     </Layout>
   )
 }
 
-export default HomeAddressFact
+export default HomeCard
