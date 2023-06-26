@@ -5,7 +5,7 @@ import { useMutation, useQuery } from "@blitzjs/rpc"
 import { Routes, BlitzPage } from '@blitzjs/next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import getCardByUser from 'src/card/queries/getCardByUser';
-import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faPlus, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import deleteProductCard from 'src/productCard/mutations/deleteProductCard';
 import getAddressBUser from "src/address_Base/queries/getAddressBUser"
 import getAddressFUser from "src/address_Fact/queries/getAddressFUser"
@@ -13,15 +13,25 @@ import createAddressBase from "src/address_Base/mutations/createAddressBase"
 import createAddressFact from "src/address_Fact/mutations/createAddressFact"
 import LabeledTextField from 'src/core/components/LabeledTextField';
 import { Form, FORM_ERROR } from "src/core/components/Form"
+import createBDC from "src/BDC/mutations/createBDC"
+import createProductBDC from 'src/core/productBDC/mutations/createProductBDC';
+const PDFDocument = require('pdfkit');
+import fsExtra from 'fs-extra';
 
 const Panier = () => {
   const currentUser = useCurrentUser();
   const [card, setCard] = useState<any[]>([]);
   const [number, setNumber] = useState<any>(0);
   const [showPopup, setShowPopup] = useState(false);
-  const [addressBase, setAddressBase] = useState<any>([]);
-  const [addressFact, setAddressFact] = useState<any>([]);
+  const [addressBase, setAddressBase] = useState<any[]>([]);
+  const [addressFact, setAddressFact] = useState<any[]>([]);
   const [newAddress, setNewAddress] = useState<any>(0);
+  const [showBaseForm, setShowBaseForm] = useState(false);
+  const [showFactForm, setShowFactForm] = useState(false);
+  const [selectedBase, setSelectedBase] = useState(null);
+  const [selectedFact, setSelectedFact] = useState(null);
+  const [cardForm, setCardForm] = useState<any>(null);
+  const [showPayement, setShowPayement] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
@@ -34,44 +44,41 @@ const Panier = () => {
           console.error('Error retrieving card:', error);
         });
 
-        getAddressBUser(currentUser.id)
+      getAddressBUser(currentUser.id)
         .then((address) => {
-          setAddressBase(address)
-          console.log("addressBase", address)
-        }
-        )
+          setAddressBase(address);
+          console.log("addressBase", address);
+        })
         .catch((error) => {
           console.error('Error retrieving product:', error);
-        }
-        );
+        });
 
-        getAddressFUser(currentUser.id)
-      .then((address) => {
-        setAddressFact(address)
-        console.log("adressFact", address)
-      }
-      )
-      .catch((error) => {
-        console.error('Error retrieving product:', error);
-      }
-      );
+      getAddressFUser(currentUser.id)
+        .then((address) => {
+          setAddressFact(address);
+          console.log("addressFact", address);
+        })
+        .catch((error) => {
+          console.error('Error retrieving product:', error);
+        });
     }
-  }, [currentUser, number, newAddress]);
-
-
+    if(selectedBase  && selectedFact){
+      console.log(selectedBase, selectedFact)
+      setCardForm(true)
+    }
+  }, [currentUser, number, newAddress,selectedBase, selectedFact]);
 
   const handleRemoveProduct = (productId: number) => {
     // Logic to remove the product from the card goes here
-    deleteProductCard({id: productId})
+    deleteProductCard({ id: productId })
       .then((productCard) => {
         console.log('productCard', productCard);
         setNumber(number + 1);
-      }
-      )
+      })
       .catch((error) => {
         console.error('Error retrieving product:', error);
-      }
-      );
+      });
+
     console.log('Removing product with ID:', productId);
   };
 
@@ -79,174 +86,410 @@ const Panier = () => {
     setShowPopup(true);
   };
 
+  const handleSelectBase = (baseId) => {
+    setSelectedBase(baseId);
+    console.log("selectedBase", selectedBase)
+  };
+
+  const handleSelectFact = (factId) => {
+    setSelectedFact(factId);
+    console.log("selectedFact", selectedFact)
+  };
+
+  const handleDismissPayement = () => {
+    setShowPayement(false);
+  };
+
+  const generateBDCPDF = async (bdc) => {
+    // Créer un nouveau document PDF
+    const doc = await PDFDocument.create();
+
+    // Ajouter une page au document
+    const page = doc.addPage();
+
+    // Définir les options de texte
+    const fontSize = 12;
+    const textOptions = {
+      size: fontSize,
+      font: await doc.embedFont('Helvetica'),
+      color: rgb(0, 0.5, 0), // Couleur verte
+    };
+
+    // Ajouter le contenu du BDC à la page
+    page.drawText('Bon de Commande', { x: 50, y: 700, ...textOptions });
+    page.moveDown();
+
+    page.drawText('Informations du client:', { x: 50, y: 680, ...textOptions });
+    page.drawText(`ID: ${bdc.user.id}`, { x: 50, y: 660, ...textOptions });
+    page.drawText(`Nom d'utilisateur: ${bdc.user.username}`, { x: 50, y: 640, ...textOptions });
+    page.drawText(`Prénom: ${bdc.user.first_name}`, { x: 50, y: 620, ...textOptions });
+    page.drawText(`Nom: ${bdc.user.last_name}`, { x: 50, y: 600, ...textOptions });
+    page.drawText(`Date de naissance: ${bdc.user.birth_date}`, { x: 50, y: 580, ...textOptions });
+    page.drawText(`Email: ${bdc.user.email}`, { x: 50, y: 560, ...textOptions });
+    page.drawText(`Téléphone: ${bdc.user.phone}`, { x: 50, y: 540, ...textOptions });
+
+    page.moveDown();
+
+    page.drawText('Adresse de livraison:', { x: 50, y: 520, ...textOptions });
+    page.drawText(`Numéro: ${bdc.address_base.number}`, { x: 50, y: 500, ...textOptions });
+    page.drawText(`Rue: ${bdc.address_base.road}`, { x: 50, y: 480, ...textOptions });
+    page.drawText(`Ville: ${bdc.address_base.city}`, { x: 50, y: 460, ...textOptions });
+    page.drawText(`Département: ${bdc.address_base.department}`, { x: 50, y: 440, ...textOptions });
+    page.drawText(`Pays: ${bdc.address_base.country}`, { x: 50, y: 420, ...textOptions });
+    page.drawText(`Code postal: ${bdc.address_base.postcode}`, { x: 50, y: 400, ...textOptions });
+
+    page.moveDown();
+
+    page.drawText('Adresse de facturation:', { x: 50, y: 380, ...textOptions });
+    page.drawText(`Prénom: ${bdc.address_fact.first_name}`, { x: 50, y: 360, ...textOptions });
+    page.drawText(`Nom: ${bdc.address_fact.last_name}`, { x: 50, y: 340, ...textOptions });
+    page.drawText(`Email: ${bdc.address_fact.email}`, { x: 50, y: 320, ...textOptions });
+    page.drawText(`Numéro: ${bdc.address_fact.number}`, { x: 50, y: 300, ...textOptions });
+    page.drawText(`Rue: ${bdc.address_fact.road}`, { x: 50, y: 280, ...textOptions });
+    page.drawText(`Ville: ${bdc.address_fact.city}`, { x: 50, y: 260, ...textOptions });
+    page.drawText(`Département: ${bdc.address_fact.department}`, { x: 50, y: 240, ...textOptions });
+    page.drawText(`Pays: ${bdc.address_fact.country}`, { x: 50, y: 220, ...textOptions });
+    page.drawText(`Code postal: ${bdc.address_fact.postcode}`, { x: 50, y: 200, ...textOptions });
+
+    page.moveDown();
+
+    page.drawText('Produits du BDC:', { x: 50, y: 180, ...textOptions });
+
+    // Parcourir chaque produit dans le tableau product_BDC
+    bdc.product_BDC.forEach((product, index) => {
+      const { id, quantity, product: { name, price } } = product;
+
+      const yPos = 160 - index * (fontSize + 10);
+
+      page.drawText(`Product ID: ${id}`, { x: 50, y: yPos, ...textOptions });
+      page.drawText(`Quantity: ${quantity}`, { x: 50, y: yPos - 20, ...textOptions });
+      page.drawText(`Product Name: ${name}`, { x: 50, y: yPos - 40, ...textOptions });
+      page.drawText(`Price: $${price}`, { x: 50, y: yPos - 60, ...textOptions });
+    });
+
+    // Sérialiser le document PDF en Uint8Array
+    const pdfBytes = await doc.save();
+
+    // Créer un Blob à partir des octets PDF
+    const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+
+    // Créer un lien de téléchargement et déclencher le téléchargement
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(pdfBlob);
+    downloadLink.download = 'bdc.pdf';
+    downloadLink.click();
+  }
+
+
+
 
   return (
     <main className="flex flex-col items-center">
-  <ul className="grid gap-4 grid-cols-3 w-750 h-400 text-sm mt-3 rounded-5 sticky overflow-auto list-none marker:scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 border border-gray-300">
-    {card.map((productCard) => (
-      <li key={productCard.id} className="flex items-center justify-between w-750">
-        <div className="flex items-center w-750">
-          <img src="/banniere.jpg" alt="Thumbnail" className="w-24 h-24 mr-30"/>
-          <div >
-            <div className="flex items-center">
-              <p className="mr-30">
-                <strong>Nom:</strong> {productCard.product.name}
-              </p>
-              <p className="mr-30">
-                <strong>Quantité:</strong> {productCard.quantity}
-              </p>
-              <p>
-                <strong>Prix:</strong> {productCard.product.price * productCard.quantity}
-              </p>
+    <ul className="grid gap-4 grid-cols-3 w-750 h-400 text-sm mt-3 rounded-5 sticky overflow-auto list-none marker:scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 border border-gray-300">
+      {card.map((productCard) => (
+        <li key={productCard.id} className={"flex items-center justify-between w-750"}>
+          <div className="flex items-center w-750">
+            <img src="/banniere.jpg" alt="Thumbnail" className="w-24 h-24 mr-30" />
+            <div>
+              <div className="flex items-center">
+                <p className="mr-30">
+                  <strong>Nom:</strong> {productCard.product.name}
+                </p>
+                <p className="mr-30">
+                  <strong>Quantité:</strong> {productCard.quantity}
+                </p>
+                <p>
+                  <strong>Prix:</strong> {productCard.product.price * productCard.quantity}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-        <button
-          className="p-2 rounded-full bg-red-500 text-white"
-          onClick={() => handleRemoveProduct(productCard.id)}
-        >
-          <FontAwesomeIcon icon={faTrashAlt} />
-        </button>
-      </li>
-    ))}
-  </ul>
-  <button
-        className="p-2 rounded-full bg-green-500 text-white mb-4"
-        onClick={handleValidate}
-      >
-        Valider
-      </button>
-  {showPopup && (
-        <div className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-4 rounded-md">
-          <h3>Adresse Base</h3>
-          <ul className="border-orange border w-800 max-h-60 text-sm mt-3 rounded-5 sticky overflow-auto list-none">
+          <label className="p-2 rounded-full bg-red-500 text-white cursor-pointer" htmlFor={`product-checkbox-${productCard.id}`}>
+            <FontAwesomeIcon icon={faTrashAlt} />
+          </label>
+          <input
+            type="checkbox"
+            id={`product-checkbox-${productCard.id}`}
+            className="hidden"
+            onChange={() => handleRemoveProduct(productCard.id)}
+          />
+        </li>
+      ))}
+    </ul>
+    <button
+      className="p-2 rounded-full bg-green-500 text-white mb-4"
+      onClick={handleValidate}
+    >
+      Valider
+    </button>
+    {showPopup && (
+      <div className="fixed overflow-auto top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="bg-white p-4 rounded-md h-400 overflow-auto">
+          <div>
+            <h3 className="text-xl font-bold mb-4">Adresse Base</h3>
+            <ul className="border-orange border w-800 max-h-60 text-sm mt-3 rounded-5 sticky overflow-auto list-none">
               {addressBase.length > 0 ? (
-                addressBase.map((wishList, index) => (
+                addressBase.map((addressBase, index) => (
                   <li key={index}>
-                     <div className="bg-gray-100 p-4 rounded mb-4 flex">
-                      <p className="text-gray-800 flex-grow">Nom: {wishList.name}</p>
-                      <button
-                        className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 ml-4"
-                        onClick={() => handleButtonClick(wishList.id)}
-                        disabled={clickedItems.includes(wishList.id)}
+                    <div className={`bg-gray-100 p-4 rounded mb-4 flex ${selectedBase === addressBase.id ? 'bg-blue-200' : ''}`}>
+                      <p className="text-gray-800 flex-grow">Numéro: {addressBase.number}</p>
+                      <p className="text-gray-800 flex-grow">Rue: {addressBase.road}</p>
+                      <p className="text-gray-800 flex-grow">Ville: {addressBase.city}</p>
+                      <p className="text-gray-800 flex-grow">Département: {addressBase.department}</p>
+                      <p className="text-gray-800 flex-grow">Pays: {addressBase.country }</p>
+                      <p className="text-gray-800 flex-grow">Code Postal: {addressBase.postcode}</p>
+                      <p className="text-gray-800 flex-grow">Complémentaire: {addressBase.complimentary}</p>
+                      <label
+                        className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 ml-4 cursor-pointer"
+                        htmlFor={`base-checkbox-${addressBase.id}`}
                       >
-                        {clickedItems.includes(wishList.id) ? (
+                        {selectedBase === addressBase.id ? (
                           <FontAwesomeIcon icon={faCheck} className="mr-2" />
                         ) : (
                           <FontAwesomeIcon icon={faPlus} className="mr-2" />
                         )}
-                      </button>
+                      </label>
+                      <input
+                        type="checkbox"
+                        id={`base-checkbox-${addressBase.id}`}
+                        className="hidden"
+                        onChange={() => handleSelectBase(addressBase)}
+                      />
                     </div>
                   </li>
                 ))
               ) : (
-                // Utilisez un <li> supplémentaire pour afficher le message "Pas encore d'avis"
                 <li>
-                  <p className="text-gray-800">Pas encore de liste de souhaits</p>
+                  <p className="text-gray-800">Pas encore d'adresse de base</p>
                 </li>
               )}
-              <li>
-              <Form
-            submitText="Créer Address Base"
-            initialValues={{ email: "", password: "" }}
-            onSubmit={async (values) => {
-              try {
-                let wishlist = {
-                  name: values.name,
-                  idUser: currentUser.id,
-                }
-                await wishListMutation(wishlist)
-                setNewList(newList + 1)
-              } catch (error: any) {
-                if (error.code === "P2002" && error.meta?.target?.includes("email")) {
-                  // This error comes from Prisma
-                  return { email: "This email is already being used" }
-                } else {
-                  return { [FORM_ERROR]: error.toString() }
-                }
-                }
-              }}
-              >
-              <div>
-                    <h3 className="text-xl font-bold mb-4">Créer une liste:</h3>
-                    <form>
-                    <LabeledTextField name="name" label="Nom" placeholder="Nom" />
-                    </form>
-                    </div>
-              </Form>
-              </li>
             </ul>
-            <h3>Adresse Facturation</h3>
+            {showBaseForm ? (
+              <Form
+                submitText="Créer Adresse Base"
+                initialValues={{ name: "", number: "", road: "", city: "", departement: "", country: "", postcode: "", complimentary: "" }}
+                onSubmit={async (values) => {
+                  try {
+                    const address = {
+                      name: values.name,
+                      number: parseInt(values.number),
+                      road: values.road,
+                      city: values.city,
+                      department: values.department,
+                      country: values.country,
+                      postcode: values.postcode,
+                      complimentary: values.complimentary || "",
+                      userID: parseInt(currentUser.id),
+                    };
+                    await createAddressBase(address);
+                    setNewAddress(newAddress + 1);
+                  } catch (error: any) {
+                    console.error('Error creating address:', error);
+                  }
+                }}
+              >
+                <div>
+                  <h3 className="text-xl font-bold mb-4">Créer une adresse de base:</h3>
+                  <div>
+                    <LabeledTextField name="name" label="Nom" placeholder="Nom" />
+                    <LabeledTextField name="number" label="Numéro" placeholder="Numéro" />
+                    <LabeledTextField name="road" label="Rue" placeholder="Rue" />
+                    <LabeledTextField name="city" label="Ville" placeholder="Ville" />
+                    <LabeledTextField name="department" label="Département" placeholder="Département" />
+                    <LabeledTextField name="country" label="Pays" placeholder="Pays" />
+                    <LabeledTextField name="postcode" label="Code Postal" placeholder="Code Postal" />
+                    <LabeledTextField name="complimentary" label="Complémentaire" placeholder="Complémentaire" />
+                  </div>
+                </div>
+              </Form>
+            ) : (
+              <button
+                className="p-2 bg-blue-500 text-white mt-4"
+                onClick={() => setShowBaseForm(true)}
+              >
+                <FontAwesomeIcon icon={faPlus} className="mr-2" />
+                Ajouter une adresse de base
+              </button>
+            )}
+          </div>
+          <div>
+            <h3 className="text-xl font-bold mb-4">Adresse Facturation</h3>
             <ul className="border-orange border w-800 max-h-60 text-sm mt-3 rounded-5 sticky overflow-auto list-none">
               {addressFact.length > 0 ? (
-                addressFact.map((wishList, index) => (
+                addressFact.map((addressFact, index) => (
                   <li key={index}>
-                     <div className="bg-gray-100 p-4 rounded mb-4 flex">
-                      <p className="text-gray-800 flex-grow">Nom: {wishList.name}</p>
-                      <button
-                        className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 ml-4"
-                        onClick={() => handleButtonClick(wishList.id)}
-                        disabled={clickedItems.includes(wishList.id)}
+                    <div className={`bg-gray-100 p-4 rounded mb-4 flex ${selectedFact === addressFact.id ? 'bg-blue-200' : ''}`}>
+                      <p className="text-gray-800 flex-grow">Prénom: {addressFact.first_name }</p>
+                      <p className="text-gray-800 flex-grow">Nom: {addressFact.last_name}</p>
+                      <p className="text-gray-800 flex-grow">Email: {addressFact.email}</p>
+                      <p className="text-gray-800 flex-grow">Numéro: {addressFact.number}</p>
+                      <p className="text-gray-800 flex-grow">Rue: {addressFact.road}</p>
+                      <p className="text-gray-800 flex-grow">Ville: {addressFact.city}</p>
+                      <p className="text-gray-800 flex-grow">Département: {addressFact.department}</p>
+                      <p className="text-gray-800 flex-grow">Pays: {addressFact.country }</p>
+                      <p className="text-gray-800 flex-grow">Code Postal: {addressFact.postcode}</p>
+                      <p className="text-gray-800 flex-grow">Complémentaire: {addressFact.complimentary}</p>
+                      <label
+                        className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 ml-4 cursor-pointer"
+                        htmlFor={`fact-checkbox-${addressFact.id}`}
                       >
-                        {clickedItems.includes(wishList.id) ? (
+                        {selectedFact === addressFact.id ? (
                           <FontAwesomeIcon icon={faCheck} className="mr-2" />
                         ) : (
                           <FontAwesomeIcon icon={faPlus} className="mr-2" />
                         )}
-                      </button>
+                      </label>
+                      <input
+                        type="checkbox"
+                        id={`fact-checkbox-${addressFact.id}`}
+                        className="hidden"
+                        onChange={() => handleSelectFact(addressFact)}
+                      />
                     </div>
                   </li>
                 ))
               ) : (
-                // Utilisez un <li> supplémentaire pour afficher le message "Pas encore d'avis"
                 <li>
-                  <p className="text-gray-800">Pas encore de liste de souhaits</p>
+                  <p className="text-gray-800">Pas encore d'adresse de facturation</p>
                 </li>
               )}
-              <li>
-              <Form
-            submitText="Créer"
-            initialValues={{ email: "", password: "" }}
-            onSubmit={async (values) => {
-              try {
-                let wishlist = {
-                  name: values.name,
-                  idUser: currentUser.id,
-                }
-                await wishListMutation(wishlist)
-                setNewList(newList + 1)
-              } catch (error: any) {
-                if (error.code === "P2002" && error.meta?.target?.includes("email")) {
-                  // This error comes from Prisma
-                  return { email: "This email is already being used" }
-                } else {
-                  return { [FORM_ERROR]: error.toString() }
-                }
-                }
-              }}
-              >
-              <div>
-                    <h3 className="text-xl font-bold mb-4">Créer une liste:</h3>
-                    <form>
-                    <LabeledTextField name="name" label="Nom" placeholder="Nom" />
-                    </form>
-                    </div>
-              </Form>
-              </li>
             </ul>
-
-            <button
-              className="p-2 bg-blue-500 text-white mt-4"
-              onClick={() => setShowPopup(false)}
-            >
-              Close
-            </button>
+            {showFactForm ? (
+              <Form
+                submitText="Créer une Adresse de Facturation"
+                initialValues={{ first_name: "", last_name: "", email: "", number: "", road: "", city: "", departement: "", country: "", postcode: "", complimentary: "" }}
+                onSubmit={async (values) => {
+                  try {
+                    const address = {
+                      first_name: values.first_name,
+                      last_name: values.last_name,
+                      email: values.email,
+                      number: parseInt(values.number),
+                      road: values.road,
+                      city: values.city,
+                      department: values.departement,
+                      country: values.country,
+                      postcode: values.postcode,
+                      complimentary: values.complimentary || "",
+                      userID: parseInt(currentUser.id),
+                    };
+                    await createAddressFact(address);
+                    setNewAddress(newAddress + 1);
+                  } catch (error: any) {
+                    console.error('Error creating address:', error);
+                  }
+                }}
+              >
+                <div>
+                  <h3 className="text-xl font-bold mb-4">Créer une adresse de facturation:</h3>
+                  <div className="">
+                    <LabeledTextField name="first_name" label="Prénom" placeholder="Prénom" />
+                    <LabeledTextField name="last_name" label="Nom" placeholder="Nom" />
+                    <LabeledTextField name="email" label="Email" placeholder="Email" />
+                    <LabeledTextField name="number" label="Numéro" placeholder="Numéro" />
+                    <LabeledTextField name="road" label="Rue" placeholder="Rue" />
+                    <LabeledTextField name="city" label="Ville" placeholder="Ville" />
+                    <LabeledTextField name="departement" label="Département" placeholder="Département" />
+                    <LabeledTextField name="country" label="Pays" placeholder="Pays" />
+                    <LabeledTextField name="postcode" label="Code Postal" placeholder="Code Postal" />
+                    <LabeledTextField name="complimentary" label="Complémentaire" placeholder="Complémentaire" />
+                  </div>
+                </div>
+              </Form>
+            ) : (
+              <button
+                className="p-2 bg-blue-500 text-white mt-4"
+                onClick={() => setShowFactForm(true)}
+              >
+                <FontAwesomeIcon icon={faPlus} className="mr-2" />
+                Ajouter une adresse de facturation
+              </button>
+            )}
           </div>
-        </div>
-      )}
-</main>
+          {cardForm ? (
 
+          <Form
+          submitText="Payer"
+          initialValues={{ idAddressBase: "", idAddressFact: "", idUser: ""}}
+          onSubmit={async (values) => {
+            try {
+              const BDC = {
+                idAddressBase: parseInt(selectedBase.id!),
+                idAddressFact: parseInt(selectedFact.id!),
+                idUser: parseInt(currentUser.id),
+              };
+              const bdc = await createBDC(BDC);
+              console.log("card", card)
+              card.forEach((productCard) => {
+                try {
+                  const product = {
+                    idProduct: productCard.product.id,
+                    idBDC: bdc.id,
+                    quantity: productCard.quantity,
+                  };
+                  const productBDC = createProductBDC(product);
+                  deleteProductCard({ id: productCard.id })
+                  .then((productCard) => {
+                    console.log('productCard', productCard);
+                    setNumber(number + 1);
+                  })
+                  .catch((error) => {
+                    console.error('Error retrieving product:', error);
+                  });
+                  const bdc = {
+                    user: currentUser,
+                    address_base: selectedBase,
+                    address_fact: selectedFact,
+                    product_BDC: card,
+                  };
+                  const bdcPDF = generateBDCPDF(bdc);
+                  fsExtra.createWriteStream("BDC").write(bdcPDF);
+                  setShowPopup(false)
+                  setShowPayement(true)
+              } catch (error: any) {
+                console.error('Error creating product_BDC', error);
+              }
+              });
+            } catch (error: any) {
+              console.error('Error creating BDC', error);
+            }
+          }}
+        >
+                <div>
+                  <h3 className="text-xl font-bold mb-4">Ajouter une carte:</h3>
+                  <div >
+                    <LabeledTextField name="cardNumber" pattern="[0-9\s]{13,19}" label="CardNumber" placeholder="Numero de carte" />
+                    <LabeledTextField name="cardHolder" label="CardHolder" placeholder="Nom" />
+                    <LabeledTextField name="expirationDate" label="expirationDate" type="date" placeholder="Date d'expiration" />
+                    <LabeledTextField name="cvv" label="Cvv"  pattern="[0-9\s]{3}" placeholder="CVV" />
+                  </div>
+                </div>
+            </Form>
+          ): null}
+          <button
+            className="p-2 rounded-full bg-blue-500 text-white mt-4"
+            onClick={() => setShowPopup(false)}
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
+    )}
+    {showPayement && (
+      <div className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-8 rounded-lg">
+        <h1 className="text-4xl text-green-500">Paiement réussi</h1>
+        <button
+              className="px-4 py-2 mt-4 bg-blue-500 text-white rounded"
+              onClick={handleDismissPayement}
+            >
+              Fermer
+            </button>
+      </div>
+
+    </div>
+    )}
+  </main>
   );
 };
 

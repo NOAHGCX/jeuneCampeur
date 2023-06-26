@@ -5,17 +5,21 @@ import { Role } from "types"
 
 const ProductCard = z.object({
   idUser: z.number(),
+  idAddressBase: z.number(),
+  idAddressFact: z.number(),
 })
 export default resolver.pipe(
   resolver.zod(ProductCard),
   async (
-    { idUser },
+    { idUser, idAddressBase, idAddressFact },
     ctx
   ) => {
 
     const BDC = await db.bDC.create({
       data: {
       idUser,
+      idAddressBase,
+      idAddressFact
     },
   }
     )
