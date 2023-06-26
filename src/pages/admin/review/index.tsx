@@ -8,6 +8,10 @@ import { Routes, BlitzPage } from "@blitzjs/next"
 import styles from "src/styles/Home.module.css"
 import Table from "src/core/components/table/Table"
 import getAllReview from "src/pages/admin//review/queries/getAllReview"
+import { LabeledTextField } from "src/core/components/LabeledTextField"
+import { Form, FORM_ERROR } from "src/core/components/Form"
+import review from "./mutation/addReview"
+
 /*
  * This file is just for a pleasant getting started page for your new app.
  * You can delete everything in here and start from scratch if you like.
@@ -278,11 +282,53 @@ const TableReview = () => {
   )
 }
 
+type ReviewFormProps = {
+  onSuccess?: () => void
+}
+
+export const ReviewForm = (props: ReviewFormProps) => {
+  const [reviewMutation] = useMutation(review)
+  return (
+    <div>
+      <h1>Creer une review</h1>
+
+      <Form
+        submitText="Creer une review"
+        initialValues={{ email: "", password: "" }}
+        onSubmit={async (values) => {
+          try {
+            let review = {
+              comment: values.comment,
+              grade: values.grade,
+            }
+            await reviewMutation(review)
+            props.onSuccess?.()
+          } catch (error: any) {
+            return { [FORM_ERROR]: error.toString() }
+          }
+        }}
+      >
+        <div>
+          <LabeledTextField name="comment" label="Commentaires" placeholder="Commentaires" />
+          <LabeledTextField name="grade" label="Note" placeholder="Note" />
+          <button type="submit" />
+        </div>
+      </Form>
+    </div>
+
+  )
+}
+
+
+
 const HomeReview: BlitzPage = () => {
   return (
     <Layout title="Home">
       <Suspense fallback="Loading...">
         <UserInfo />
+      </Suspense>
+      <Suspense fallback="Loading...">
+        <ReviewForm />
       </Suspense>
       <Suspense fallback="Loading...">
         <TableReview />

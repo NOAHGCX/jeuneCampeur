@@ -8,6 +8,9 @@ import { Routes, BlitzPage } from "@blitzjs/next"
 import styles from "src/styles/Home.module.css"
 import Table from "src/core/components/table/Table"
 import getAllProduct from "src/pages/admin/product/queries/getAllProduct"
+import { LabeledTextField } from "src/core/components/LabeledTextField"
+import { Form, FORM_ERROR } from "src/core/components/Form"
+import addProduct from "./mutation/addProduct"
 /*
  * This file is just for a pleasant getting started page for your new app.
  * You can delete everything in here and start from scratch if you like.
@@ -96,7 +99,7 @@ const TableProduct = () => {
       setSelectAll={setSelectAll}
       exportPartial={true}
       exportAll={true}
-      add={"/product/creation"}
+      add={"/product/mutation"}
       exportKey={[
         { label: "Id", key: "id" },
         { label: "Nom du produit", key: "name" },
@@ -311,11 +314,56 @@ const TableProduct = () => {
   )
 }
 
+type ProductFormProps = {
+  onSuccess?: () => void
+}
+
+export const ProductForm = (props: ProductFormProps) => {
+  const [productMutation] = useMutation(addProduct)
+  return (
+    <div>
+      <h1>Ajout de produits</h1>
+
+      <Form
+        submitText="Ajout d'un produit"
+        initialValues={{ email: "", password: "" }}
+        onSubmit={async (values) => {
+          try {
+            let product = {
+              name: values.name,
+              price: values.price,
+              stock: values.stock,
+              description: values.description,
+            }
+            await productMutation(product)
+            props.onSuccess?.()
+          } catch (error: any) {
+            return { [FORM_ERROR]: error.toString() }
+          }
+        }}
+      >
+        <div>
+          <LabeledTextField name="name" label="Nom du produit" placeholder="Nom du produit" />
+          <LabeledTextField name="price" label="Prix" placeholder="Prix" />
+          <LabeledTextField name="stock" label="Stock" placeholder="Stock" />
+          <LabeledTextField name="description" label="Description" placeholder="Description" />
+          <button type="submit" />
+        </div>
+      </Form>
+    </div>
+
+  )
+}
+
+
 const HomeProduct: BlitzPage = () => {
   return (
     <Layout title="Home">
       <Suspense fallback="Loading...">
         <UserInfo />
+      </Suspense>
+      <Suspense fallback="Loading...">
+        <ProductForm />
       </Suspense>
       <Suspense fallback="Loading...">
         <TableProduct />

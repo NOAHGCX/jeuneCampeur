@@ -8,6 +8,9 @@ import { Routes, BlitzPage } from "@blitzjs/next"
 import styles from "src/styles/Home.module.css"
 import Table from "src/core/components/table/Table"
 import getAllAddressBase from "src/pages/admin/address_base/queries/getAllAddressBase"
+import { LabeledTextField } from "src/core/components/LabeledTextField"
+import { Form, FORM_ERROR } from "src/core/components/Form"
+import address_base from "../address_base/mutation/addAddressBase"
 /*
  * This file is just for a pleasant getting started page for your new app.
  * You can delete everything in here and start from scratch if you like.
@@ -329,12 +332,66 @@ const TableAddressBase = () => {
     />
   )
 }
+type AddressBaseFormProps = {
+  onSuccess?: () => void
+}
+
+export const AddressBaseForm = (props: AddressBaseFormProps) => {
+  const [addressBaseMutation] = useMutation(address_base)
+  return (
+    <div>
+      <h1>Creer une adresse</h1>
+
+      <Form
+        submitText="Creer une adresse"
+        initialValues={{ city: "", country: "" }}
+        onSubmit={async (values) => {
+          try {
+            let address_fact = {
+              number: values.number,
+              road: values.road,
+              city: values.city,
+              department: values.department,
+              country: values.country,
+              postcode: values.postcode,
+              complimentary: values.complimentary,
+            }
+            await addressBaseMutation(address_fact)
+            props.onSuccess?.()
+          } catch (error: any) {
+            return { [FORM_ERROR]: error.toString() }
+          }
+        }}
+      >
+        <div>
+
+          <LabeledTextField name="number" label="Numero" placeholder="Numero" />
+          <LabeledTextField name="road" label="Rue" placeholder="Rue" />
+          <LabeledTextField name="city" label="Ville" placeholder="Ville" />
+          <LabeledTextField name="country" label="Pays" placeholder="Pays" />
+          <LabeledTextField name="department" label="Departement" placeholder="Departement" />
+          <LabeledTextField name="postcode" label="Code postal" placeholder="Code postal" />
+          <LabeledTextField name="complimentary" label="Informations complémentaires" placeholder="Informations complémentaires" />
+          <button type="submit" />
+        </div>
+      </Form>
+    </div>
+
+  )
+}
+
+
+
+
 
 const HomeAddressBase: BlitzPage = () => {
   return (
     <Layout title="Home">
       <Suspense fallback="Loading...">
         <UserInfo />
+      </Suspense>
+      <Suspense fallback="Loading...">
+        <AddressBaseForm />
       </Suspense>
       <Suspense fallback="Loading...">
         <TableAddressBase />
