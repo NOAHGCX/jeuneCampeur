@@ -15,8 +15,7 @@ import LabeledTextField from 'src/core/components/LabeledTextField';
 import { Form, FORM_ERROR } from "src/core/components/Form"
 import createBDC from "src/BDC/mutations/createBDC"
 import createProductBDC from 'src/core/productBDC/mutations/createProductBDC';
-const PDFDocument = require('pdfkit');
-import fsExtra from 'fs-extra';
+import { PDFDocument, rgb } from 'pdf-lib';
 
 const Panier = () => {
   const currentUser = useCurrentUser();
@@ -112,12 +111,12 @@ const Panier = () => {
     const textOptions = {
       size: fontSize,
       font: await doc.embedFont('Helvetica'),
-      color: rgb(0, 0.5, 0), // Couleur verte
+      color: rgb(0, 0, 0), // Couleur verte
     };
 
     // Ajouter le contenu du BDC à la page
     page.drawText('Bon de Commande', { x: 50, y: 700, ...textOptions });
-    page.moveDown();
+    page.moveDown(0.5);
 
     page.drawText('Informations du client:', { x: 50, y: 680, ...textOptions });
     page.drawText(`ID: ${bdc.user.id}`, { x: 50, y: 660, ...textOptions });
@@ -128,7 +127,7 @@ const Panier = () => {
     page.drawText(`Email: ${bdc.user.email}`, { x: 50, y: 560, ...textOptions });
     page.drawText(`Téléphone: ${bdc.user.phone}`, { x: 50, y: 540, ...textOptions });
 
-    page.moveDown();
+    page.moveDown(0.5);
 
     page.drawText('Adresse de livraison:', { x: 50, y: 520, ...textOptions });
     page.drawText(`Numéro: ${bdc.address_base.number}`, { x: 50, y: 500, ...textOptions });
@@ -138,7 +137,7 @@ const Panier = () => {
     page.drawText(`Pays: ${bdc.address_base.country}`, { x: 50, y: 420, ...textOptions });
     page.drawText(`Code postal: ${bdc.address_base.postcode}`, { x: 50, y: 400, ...textOptions });
 
-    page.moveDown();
+    page.moveDown(0.5);
 
     page.drawText('Adresse de facturation:', { x: 50, y: 380, ...textOptions });
     page.drawText(`Prénom: ${bdc.address_fact.first_name}`, { x: 50, y: 360, ...textOptions });
@@ -151,7 +150,7 @@ const Panier = () => {
     page.drawText(`Pays: ${bdc.address_fact.country}`, { x: 50, y: 220, ...textOptions });
     page.drawText(`Code postal: ${bdc.address_fact.postcode}`, { x: 50, y: 200, ...textOptions });
 
-    page.moveDown();
+    page.moveDown(0.5);
 
     page.drawText('Produits du BDC:', { x: 50, y: 180, ...textOptions });
 
@@ -165,6 +164,7 @@ const Panier = () => {
       page.drawText(`Quantity: ${quantity}`, { x: 50, y: yPos - 20, ...textOptions });
       page.drawText(`Product Name: ${name}`, { x: 50, y: yPos - 40, ...textOptions });
       page.drawText(`Price: $${price}`, { x: 50, y: yPos - 60, ...textOptions });
+
     });
 
     // Sérialiser le document PDF en Uint8Array
@@ -173,11 +173,20 @@ const Panier = () => {
     // Créer un Blob à partir des octets PDF
     const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
 
-    // Créer un lien de téléchargement et déclencher le téléchargement
-    const downloadLink = document.createElement('a');
-    downloadLink.href = URL.createObjectURL(pdfBlob);
-    downloadLink.download = 'bdc.pdf';
-    downloadLink.click();
+     // Créer un lien de téléchargement
+  const downloadLink = document.createElement('a');
+  downloadLink.href = URL.createObjectURL(pdfBlob);
+  downloadLink.download = 'document.pdf';
+  downloadLink.target = '_blank'; // Ouvrir le lien dans un nouvel onglet
+
+  // Ajouter le lien de téléchargement à la page
+  document.body.appendChild(downloadLink);
+
+  // Déclencher le téléchargement
+  downloadLink.click();
+
+  // Supprimer le lien de téléchargement de la page (facultatif)
+  document.body.removeChild(downloadLink);
   }
 
 
@@ -431,19 +440,18 @@ const Panier = () => {
                   deleteProductCard({ id: productCard.id })
                   .then((productCard) => {
                     console.log('productCard', productCard);
+                    const bdc = {
+                      user: currentUser,
+                      address_base: selectedBase,
+                      address_fact: selectedFact,
+                      product_BDC: card,
+                    };
+                    const bdcPDF = generateBDCPDF(bdc);
                     setNumber(number + 1);
                   })
                   .catch((error) => {
                     console.error('Error retrieving product:', error);
                   });
-                  const bdc = {
-                    user: currentUser,
-                    address_base: selectedBase,
-                    address_fact: selectedFact,
-                    product_BDC: card,
-                  };
-                  const bdcPDF = generateBDCPDF(bdc);
-                  fsExtra.createWriteStream("BDC").write(bdcPDF);
                   setShowPopup(false)
                   setShowPayement(true)
               } catch (error: any) {
