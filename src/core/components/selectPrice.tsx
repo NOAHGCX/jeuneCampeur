@@ -53,7 +53,8 @@ const PriceRangeSelector = ({ onRangeChange }) => {
   };
 
   return (
-    <div>
+    <div className="flex items-center">
+  <div className="w-250">
     <label htmlFor="startPrice">Start Price:</label>
     <input
       type="range"
@@ -64,7 +65,9 @@ const PriceRangeSelector = ({ onRangeChange }) => {
       onChange={handleStartPriceChange}
     />
     <span>{startPrice}</span>
+  </div>
 
+  <div className=" w-250">
     <label htmlFor="endPrice">End Price:</label>
     <input
       type="range"
@@ -76,6 +79,8 @@ const PriceRangeSelector = ({ onRangeChange }) => {
     />
     <span>{endPrice}</span>
   </div>
+</div>
+
   );
 };
 

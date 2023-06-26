@@ -128,6 +128,8 @@ const seed = async () => {
     const bdc = await db.bDC.create({
       data: {
         idUser: faker.datatype.number({ min: 1, max: i, precision: 1 }), // Replace with appropriate range based on your users
+        idAddressFact: faker.datatype.number({ min: 1, max: i, precision: 1 }), // Replace with appropriate range based on your addresses
+        idAddressBase: faker.datatype.number({ min: 1, max: i, precision: 1 }), // Replace with appropriate range based on your addresses
         // Add appropriate fields for BDC model
       },
     })

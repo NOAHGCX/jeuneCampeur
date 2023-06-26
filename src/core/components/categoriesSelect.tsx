@@ -30,7 +30,7 @@ export const CategoriesSelect = ({ onSelectChange }) => {
       isMulti
       onChange={handleSelectChange}
       placeholder="Categories"
-      className="border-orange border w-295  text-sm mt-3 rounded-5"
+      className="border-orange border w-295  text-sm  rounded-5"
     />
   );
 };

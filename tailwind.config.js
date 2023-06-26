@@ -58,7 +58,7 @@ module.exports = {
       },
       backgroundImage: (theme) => ({
         "loggin-pattern": "url('public/login.jpg')",
-        'header': "url('/public/banniere.jpg')",
+        "header": "url('/public/banniere.jpg')",
 
         Icon: "url('public/Icon.svg')",
       }),
@@ -122,6 +122,7 @@ module.exports = {
         41: "41px",
         789: "789px",
         50: "50px",
+        300: "300px",
       },
       width: {
         50: "50px",
@@ -175,6 +176,9 @@ module.exports = {
         540: "540px",
         600: "600px",
         800: "800px",
+        400: "400px",
+        700: "700px",
+        20: "20px",
       },
       maxWidth: {
         "1/4": "25%",
@@ -294,6 +298,7 @@ module.exports = {
     container: false,
   },
   plugins: [
+    require('tailwind-scrollbar'),
     function ({ addComponents }) {
       addComponents({
         ".container": {

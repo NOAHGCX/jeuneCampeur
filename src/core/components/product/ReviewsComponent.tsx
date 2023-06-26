@@ -18,7 +18,7 @@ const ReviewsComponent = (props: ReviewsProps) => {
   const [newReview, setNewReview] = useState<any>(0);
 
   const handleNoteChange = (note) => {
-   console.log("note", note)
+
    setNote(note = note)
   };
 
@@ -26,7 +26,6 @@ const ReviewsComponent = (props: ReviewsProps) => {
     getReviewsProduct(parseInt(props.productId as string))
       .then((review) => {
         setReviews(review)
-        console.log("review", review)
       }
       )
       .catch((error) => {
@@ -46,7 +45,6 @@ submitText="Ajouter un avis"
 initialValues={{ email: "", password: "" }}
 onSubmit={async (values) => {
   try {
-    console.log(values.note)
     let review = {
       idProduct : parseInt(props.productId as string),
       comment: values.commentaire,
@@ -67,35 +65,43 @@ onSubmit={async (values) => {
 >
 <div>
       <h3 className="text-xl font-bold mb-4">Ajouter un nouvel avis:</h3>
-      <form>
-      <LabeledTextField name="commentaire" label="Commentaire" placeholder="Commentaire" />
-        <label className="block mb-2">
-          Note:
-          <div className="flex items-center">
-            {[1, 2, 3, 4, 5].map((point) => (
-              <label key={point} className="flex items-center mr-2">
-                <input
-                  type="radio"
-                  name="note"
-                  value={point}
-                  checked={note === point}
-                  onChange={() => handleNoteChange(point)}
-                  className="mr-1"
-                />
-                {point}
-              </label>
-            ))}
+      <form className="flex flex-col items-start">
+        <div className="flex items-start">
+          <div className="w-1/2">
+          <h4 className="text-l font-bold mb-4" >Commentaire:</h4>
+            <LabeledTextField name="commentaire" label="" placeholder="Commentaire" />
           </div>
-        </label>
+          <div className="w-1/2 mx-4">
+            <label className="block mb-2">
+              <h4 className="text-l font-bold mb-4" >Note:</h4>
+              <div className="flex items-center justify-end">
+                {[1, 2, 3, 4, 5].map((point) => (
+                  <label key={point} className="flex items-center ml-2">
+                    <input
+                      type="radio"
+                      name="note"
+                      value={point}
+                      checked={note === point}
+                      onChange={() => handleNoteChange(point)}
+                      className="mr-1"
+                    />
+                    {point}
+                  </label>
+                ))}
+              </div>
+            </label>
+          </div>
+        </div>
       </form>
       </div>
 </Form>
 
       )}
+      <div className="border-orange border w-800 h-500 text-sm mt-3 mb-3 rounded-5 sticky" >
       <h3 className="text-xl font-bold mb-4">Avis clients:</h3>
-      <h2>Note moyenne:{reviews.length > 0 ? reviews.reduce((a, b) => a + b.grade, 0) / reviews.length : 0}</h2>
+      <h2 className="text-l font-bold mb-4">Note moyenne:{reviews.length > 0 ? (reviews.reduce((a, b) => a + b.grade, 0) / reviews.length).toFixed(1): 0}</h2>
 
-      <ul className="border-orange border w-800 max-h-60 text-sm mt-3 rounded-5 sticky overflow-auto list-none">
+      <ul className=" w-750 h-400 text-sm mt-3 rounded-5 sticky overflow-auto list-none marker:scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
   {reviews.length > 0 ? (
     reviews.map((review, index) => (
       <li key={index}>
@@ -113,6 +119,7 @@ onSubmit={async (values) => {
     </li>
   )}
 </ul>
+</div>
     </div>
   );
 };

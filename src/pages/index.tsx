@@ -1,6 +1,5 @@
 import React, { Suspense, useEffect, useState } from "react"
 import Link from "next/link"
-import Layout from "src/core/layouts/Layout"
 import { useCurrentUser } from "src/users/hooks/useCurrentUser"
 import logout from "src/auth/mutations/logout"
 import { useMutation, useQuery } from "@blitzjs/rpc"
@@ -9,19 +8,14 @@ import styles from "src/styles/Home.module.css"
 import { CategoriesSelect } from "src/core/components/categoriesSelect"
 import PriceRangeSelector from "src/core/components/selectPrice"
 import AutocompleteText from "src/core/components/AutocompleteText"
-import getAllProducts from "src/core/products/queries/getAllProduct"
+import getAllProducts from "src/core/products/queries/getAllProducts"
 import Products from "src/core/components/showProducts"
-import { m } from "vitest/dist/index-9f5bc072"
-/*
+import Layout from "src/core/components/Layout"
+/*C:
  * This file is just for a pleasant getting started page for your new app.
  * You can delete everything in here and start from scratch if you like.
  */
 
-const UserInfo = () => {
-  const currentUser = useCurrentUser()
-  const [logoutMutation] = useMutation(logout)
-
-}
 
 const ProductComponent = () => {
   var [text, setText] = React.useState<any>("")
@@ -29,9 +23,20 @@ const ProductComponent = () => {
   const [minPrice, setMinPrice] = useState<any>();
   const [maxPrice, setMaxPrice] = useState<any>();
   const [requete, setRequete] = React.useState<any>()
-  const [products] = useQuery(getAllProducts, undefined)
+  var [products, setProducts] = useState<any>([]);
 
 
+  useEffect(() => {
+    console.log("je suis la")
+    getAllProducts()
+      .then((products) => {
+        setProducts(products);
+        console.log("products", products)
+      })
+      .catch((error) => {
+        console.error('Error retrieving product:', error);
+      });
+  }, []);
   const handleSelectChange = (selectedValues) => {
     console.log("selectedValues", selectedValues)
     setSelectedCategories(
@@ -74,57 +79,54 @@ const handleRangeChange = (minValue, maxValue) => {
         },
       })
     }
-    setRequete(rqt)
     console.log("envoie", rqt)
+    setRequete(rqt)
   }
 
   const selectedText = (value) => {
-
     setText((text = value))
   }
 
 
 
   return (
-    <main className="flex-wrap">
-        <div className="flex items-stretch relative1024:w-890 1440:w-1190 1660:w-1444 1880:w-1444 2200:w-1892  2560:w-2180">
-            <div className="mr-24 static">
-                <Suspense fallback={"string"}>
-                  <AutocompleteText
-                    items={products.map((product: { name: string}) => ({
-                      name: product.name,
-                    }))}
-                    text={text}
-                    setText={setText}
-                    sendResearch={sendResearch}
-                    onChangeText={onChangeText}
-                    selectedText={selectedText}
-                  />
-                </Suspense>
-                </div>
-                <div className="mr-24 static">
-                <Suspense fallback="Loading...">
-                  <CategoriesSelect onSelectChange={handleSelectChange} />
-                </Suspense>
-                </div>
-                </div>
-                <div className="mr-24 static">
-                <Suspense fallback="Loading...">
-                  <PriceRangeSelector
-                  onRangeChange={handleRangeChange}
-                  />
-                </Suspense>
-                </div>
-                <div className="static z-0">
-                <Suspense fallback="Loading...">
-                  <Products
-                    requete={requete}
-                    sendResearch={sendResearch}
-                  />
-                </Suspense>
+    <main>
+  <div className="flex items-center">
+    <div className="flex items-stretch relative1024:w-890 1440:w-1190 1660:w-1444 1880:w-1444 2200:w-1892 2560:w-2180">
+      <div className="mr-4 ">
+        <Suspense fallback={"string"}>
+          <AutocompleteText
+            items={products.map((product: { name: string }) => ({
+              name: product.name,
+            }))}
+            text={text}
+            setText={setText}
+            sendResearch={sendResearch}
+            onChangeText={onChangeText}
+            selectedText={selectedText}
+          />
+        </Suspense>
+      </div>
+      <div className="mr-5 ">
+        <Suspense fallback="Loading...">
+          <CategoriesSelect onSelectChange={handleSelectChange} />
+        </Suspense>
+      </div>
+      <div className="mr-4 mt-3 ">
+        <Suspense fallback="Loading...">
+          <PriceRangeSelector onRangeChange={handleRangeChange} />
+        </Suspense>
+      </div>
+    </div>
+  </div>
+  <div className=" z-0">
+    <Suspense fallback="Loading...">
+      <Products requete={requete} sendResearch={sendResearch} />
+    </Suspense>
+  </div>
+</main>
 
-              </div>
-              </main>
+
   )
 }
 
@@ -134,19 +136,21 @@ const Home: BlitzPage = () => {
   return (
     <div>
     <header>
-      <div className="bg-header bg-cover w-full h-384 bg-center ">
+      <div className=" bg-cover w-full h-384 bg-center ">
         <h1 className=" ml-144 pt-35 text-72sec text-orange 2 font-bold oldstyle-nums">
           jeune<span className="text-white ">Campeur </span>{" "}
         </h1>
       </div>
     </header>
-    <div className=" container_menu mx-auto flex h-screen mt-43  ">
+    <Layout breadcrumb={"/"}>
+    <div className=" container_menu mx-auto flex mt-60 mb-60 ">
     <div className={styles.buttonContainer}>
                 <Suspense fallback={"string"}>
                   <ProductComponent />
                 </Suspense>
               </div>
     </div>
+    </Layout>
     <footer>
       <div className="bg-dark bg-cover h-268 bg-center">
         <div className="container mx-auto flex-col flex justify-center items-center h-268">

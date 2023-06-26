@@ -1,5 +1,4 @@
 import { useRouter } from "next/router"
-import Layout from "src/core/layouts/Layout"
 import { BlitzPage, Routes, useParam } from "@blitzjs/next"
 import React, { useState, useEffect, Suspense } from "react"
 import oneProduct from "src/core/products/queries/oneProduct";
@@ -7,35 +6,41 @@ import { useQuery } from "@blitzjs/rpc";
 import styles from "src/styles/Home.module.css"
 import ReviewsComponent from "src/core/components/product/ReviewsComponent"
 import ProductDetail from "src/core/components/product/ProductDetails"
+import CarrousselProduct from "src/core/components/product/CarrousselProduct";
+import Layout from "src/core/components/Layout"
 
 const Product = () => {
   const [idProduct, setIdProduct] = useState<any>(null)
   const idParam = useParam("id")
   const [product] = useQuery(oneProduct, parseInt(idParam! as string))
-  const CallReload = () => {
-    console.log("callReload")
-    const [product] = useQuery(oneProduct, parseInt(idParam! as string))
-    console.log("product", product)
-  }
+
   useEffect(() => {
     setIdProduct(idParam)
     console.log("product", product)
   }, [product])
 
   return (
-    <div>
-      <Suspense fallback={"string"}>
-          <ProductDetail
-          product={product}
-          />
-        </Suspense>
-        <Suspense fallback={"string"}>
-          <ReviewsComponent
-          productId={idParam}
-          callReload={CallReload}
-          />
-        </Suspense>
+    <div className="flex flex-col">
+  <div className="flex">
+    <div className="w-1/2">
+      <CarrousselProduct product={product} />
     </div>
+    <div className="w-1/2 flex items-center justify-center">
+      <Suspense fallback="Chargement...">
+        <ProductDetail product={product} />
+      </Suspense>
+    </div>
+  </div>
+
+  <div className="border-orange border w-800 max-h-60 text-lg mt-6 rounded-5 sticky overflow-auto list-none">
+    <h2 className="text-xl font-semibold mb-2">Nom du produit</h2>
+    <p className="text-base leading-relaxed">{product.description}</p>
+  </div>
+
+  <Suspense fallback="Chargement...">
+    <ReviewsComponent productId={idParam} />
+  </Suspense>
+</div>
   )
 }
 const ProductPage: BlitzPage = () => {
@@ -49,6 +54,7 @@ const ProductPage: BlitzPage = () => {
         </h1>
       </div>
     </header>
+    <Layout breadcrumb={"/"}>
     <div className=" container_menu mx-auto flex h-screen mt-43  ">
     <div className={styles.buttonContainer}>
         <Suspense fallback={"string"}>
@@ -56,8 +62,9 @@ const ProductPage: BlitzPage = () => {
         </Suspense>
               </div>
     </div>
+    </Layout>
     <footer>
-      <div className="bg-dark bg-cover h-268 bg-center">
+      <div className="bg-header bg-dark bg-cover h-268 bg-center">
         <div className="container mx-auto flex-col flex justify-center items-center h-268">
           <h1 className="text-3xl text-orange">
             jeune<span className="text-white ">Campeur </span>{" "}

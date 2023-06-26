@@ -50,7 +50,8 @@ model Address_Fact {
   department    String
   country       String
   postcode      String
-  complimentary String
+  complimentary String?
+  bdc            BDC[]
   userID        Int
   user          User     @relation(fields: [userID], references: [id])
   createdAt     DateTime @default(now())
@@ -66,6 +67,7 @@ model Address_Base {
   country       String
   postcode      String
   complimentary String
+  bdc            BDC[]
   userID        Int
   user          User     @relation(fields: [userID], references: [id])
   createdAt     DateTime @default(now())
@@ -163,6 +165,10 @@ model BDC {
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
 
+  idAddressBase Int
+  address_base  Address_Base     @relation(fields: [idAddressBase], references: [id])
+  idAddressFact Int
+  address_fact  Address_Fact     @relation(fields: [idAddressFact], references: [id])
   user        User @relation(fields: [idUser], references: [id])
   idUser      Int
   product_BDC Product_BDC[]

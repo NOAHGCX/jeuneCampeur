@@ -1,24 +1,126 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useCurrentUser } from "src/users/hooks/useCurrentUser"
+import { Form, FORM_ERROR } from "src/core/components/Form"
+import { useMutation, useQuery } from "@blitzjs/rpc"
+import { LabeledTextField } from "src/core/components/LabeledTextField"
+import createWishList from "src/wishlist/mutations/createWishList"
+import addProductWishList from "src/wishlist/mutations/addProductWishList"
+import getWishlistUser from "src/wishlist/queries/getWishlistUser"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import getCardByUser from 'src/card/queries/getCardByUser';
+import createCard from 'src/card/mutations/createCard';
+import updateQuantity from 'src/productCard/mutations/updateQuantity';
+import createProductCard from 'src/productCard/mutations/createProductCard';
 
-type ProductDetailsProps = {
+type  ProductDetailsProps = {
   product?: any
 }
 const ProductDetails = (props: ProductDetailsProps) => {
-  const [quantity, setQuantity] = useState(1);
-
+  const [wishListMutation] = useMutation(createWishList)
+  var [quantity, setQuantity] = useState(1);
+  const [showPopup, setShowPopup] = useState(false);
+  const [clickedItems, setClickedItems] = useState<any>([]);
+  const currentUser = useCurrentUser()
+  const [wishList, setWishList] = useState<any>([]);
+  const [newList, setNewList] = useState<any>(0);
   const handleQuantityChange = (e) => {
     const newQuantity = parseInt(e.target.value);
-    setQuantity(newQuantity);
+    setQuantity(quantity = newQuantity);
+    console.log("newQuantity", quantity)
   };
 
   const handleAddToCart = () => {
     // Logique pour ajouter le produit au panier
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    if (currentUser) {
+      getCardByUser(currentUser.id)
+      .then((card) => {
+        console.log("card", card)
+        if(card == null){
+          console.log("card1", card)
+          createCard({idUser: currentUser.id})
+          .then((card) => {
+            console.log("card2", card)
+            createProductCard({idCard: card.id, idProduct: props.product.id, quantity: quantity})
+            .then((card) => {
+              console.log("card3", card)
+            }
+            )
+            .catch((error) => {
+              console.error('Error retrieving product:', error);
+            }
+            );
+          }
+          )
+          .catch((error) => {
+            console.error('Error retrieving product:', error);
+          }
+          );
+        }else{
+          if(card.product_Card.length == 0){
+            console.log("card5", card)
+            createProductCard({idCard: card.id, idProduct: props.product.id, quantity: quantity})
+            .then((card) => {
+              console.log("card6", card)
+            }
+            )
+            .catch((error) => {
+              console.error('Error retrieving product:', error);
+            }
+            );
+          }
+          else{
+          for (var i = 0; i < card.product_Card.length; i++) {
+            var productCard = card.product_Card[i];
+            console.log("productCard", productCard.id)
+            // Vérifier si l'ID du produit correspond
+            if (productCard.idProduct === props.product.id) {
+              console.log("Le produit existe déjà.");
+              updateQuantity({id: productCard.id, quantity: quantity})
+              .then((card) => {
+                console.log("card3", card)
+              }
+              )
+              .catch((error) => {
+                console.error('Error retrieving product:', error);
+              }
+              );
+              break;
+            }
+            else{
+              console.log("card4", card)
+              createProductCard({idCard: card.id, idProduct: props.product.id, quantity: quantity})
+              .then((card) => {
+                console.log("card5", card)
+              }
+              )
+              .catch((error) => {
+                console.error('Error retrieving product:', error);
+              }
+              );
+            }
+          }
+        }
+        }
+      }
+      )
+      .catch((error) => {
+        console.error('Error retrieving product:', error);
+      }
+      );
+    }
     console.log(`Ajouter au panier : ${props.product.name}, Quantité : ${quantity}`);
   };
 
+
   const handleAddToWishlist = () => {
-    // Logique pour ajouter le produit à la liste de souhaits
-    console.log(`Ajouter à la liste de souhaits : ${props.product.name}`);
+    setShowPopup(true);
+  };
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
   };
 
   const renderQuantityOptions = () => {
@@ -33,6 +135,40 @@ const ProductDetails = (props: ProductDetailsProps) => {
     return options;
   };
 
+  const handleButtonClick = (id) => {
+    if (currentUser) {
+      console.log("id", id)
+      console.log("currentUser.id", currentUser.id)
+      const idWishList = parseInt(id)
+      const idProduct = parseInt(props.product.id)
+      addProductWishList({idWishList, idProduct})
+      .then((wishList) => {
+        setClickedItems([...clickedItems, id]);
+        console.log("wishList", wishList)
+      }
+      )
+      .catch((error) => {
+        console.error('Error retrieving product:', error);
+      }
+      );
+    }
+  }
+
+
+  useEffect(() => {
+    if (currentUser) {
+      getWishlistUser(currentUser.id)
+      .then((wishList) => {
+        setWishList(wishList)
+        console.log("wishList", wishList)
+      }
+      )
+      .catch((error) => {
+        console.error('Error retrieving product:', error);
+      }
+      );
+    }
+  }, [newList])
   return (
     <div className="w-64 p-4 border border-gray-300 rounded bg-white">
       <h2 className="text-lg font-bold mb-2">{props.product.name}</h2>
@@ -56,6 +192,76 @@ const ProductDetails = (props: ProductDetailsProps) => {
       >
         Ajouter à la liste de souhaits
       </button>
+      {showPopup && (
+        <div className="fixed inset-0 flex items-center justify-center z-10 bg-black bg-opacity-50">
+          <div className="bg-white p-4 rounded shadow">
+            <h2 className="text-lg font-bold mb-2">Liste de souhaits</h2>
+            <ul className="border-orange border w-800 max-h-60 text-sm mt-3 rounded-5 sticky overflow-auto list-none">
+              {wishList.length > 0 ? (
+                wishList.map((wishList, index) => (
+                  <li key={index}>
+                     <div className="bg-gray-100 p-4 rounded mb-4 flex">
+                      <p className="text-gray-800 flex-grow">Nom: {wishList.name}</p>
+                      <button
+                        className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 ml-4"
+                        onClick={() => handleButtonClick(wishList.id)}
+                        disabled={clickedItems.includes(wishList.id)}
+                      >
+                        {clickedItems.includes(wishList.id) ? (
+                          <FontAwesomeIcon icon={faCheck} className="mr-2" />
+                        ) : (
+                          <FontAwesomeIcon icon={faPlus} className="mr-2" />
+                        )}
+                      </button>
+                    </div>
+                  </li>
+                ))
+              ) : (
+                // Utilisez un <li> supplémentaire pour afficher le message "Pas encore d'avis"
+                <li>
+                  <p className="text-gray-800">Pas encore de liste de souhaits</p>
+                </li>
+              )}
+              <li>
+              <Form
+            submitText="Créer"
+            initialValues={{ email: "", password: "" }}
+            onSubmit={async (values) => {
+              try {
+                let wishlist = {
+                  name: values.name,
+                  idUser: currentUser.id,
+                }
+                await wishListMutation(wishlist)
+                setNewList(newList + 1)
+              } catch (error: any) {
+                if (error.code === "P2002" && error.meta?.target?.includes("email")) {
+                  // This error comes from Prisma
+                  return { email: "This email is already being used" }
+                } else {
+                  return { [FORM_ERROR]: error.toString() }
+                }
+                }
+              }}
+              >
+              <div>
+                    <h3 className="text-xl font-bold mb-4">Créer une liste:</h3>
+                    <form>
+                    <LabeledTextField name="name" label="Nom" placeholder="Nom" />
+                    </form>
+                    </div>
+              </Form>
+              </li>
+            </ul>
+            <button
+              onClick={handleClosePopup}
+              className="bg-blue-500 text-white py-2 px-4 rounded mt-2 hover:bg-blue-600"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
