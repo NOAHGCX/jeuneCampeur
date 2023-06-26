@@ -8,6 +8,10 @@ import { Routes, BlitzPage } from "@blitzjs/next"
 import styles from "src/styles/Home.module.css"
 import Table from "src/core/components/table/Table"
 import getAllPicture from "src/pages/admin/pictures/queries/getAllPicture"
+import { LabeledTextField } from "src/core/components/LabeledTextField"
+import { Form, FORM_ERROR } from "src/core/components/Form"
+import picture from "./mutation/addPicture"
+
 /*
  * This file is just for a pleasant getting started page for your new app.
  * You can delete everything in here and start from scratch if you like.
@@ -92,13 +96,15 @@ const TablePictures = () => {
       setSelectAll={setSelectAll}
       exportPartial={true}
       exportAll={true}
-      add={"/pictures/creation"}
+      add={"/pictures/mutation"}
       exportKey={[
         { label: "Id", key: "id" },
         { label: "Nom de l'image", key: "name" },
         { label: "Lien", key: "href" },
         { label: "Lien", key: "href" },
         { label: "Produit", key: "product" },
+        { label: "Créé le", key: "createdAt" },
+        { label: "Mis à jour le", key: "updatedAt" },
       ]}
       titre={`Liste des images`}
       key="table_liste_image"
@@ -187,6 +193,36 @@ const TablePictures = () => {
           },
         },
         {
+          id: "createdAt",
+          th: {
+            currentOrder,
+            setCurrentOrder,
+            colone: "createdAt",
+            text: "Créé le",
+            order: true,
+            orderColumn: "createdAt",
+            thSpanClasses: "justify-content-between",
+          },
+          td: {
+            text: (item: any) => item.createdAt.toLocaleString(),
+          },
+        },
+        {
+          id: "updatedAt",
+          th: {
+            currentOrder,
+            setCurrentOrder,
+            colone: "updatedAt",
+            text: "Mis à jour le",
+            order: true,
+            orderColumn: "updatedAt",
+            thSpanClasses: "justify-content-between",
+          },
+          td: {
+            text: (item: any) => item.updatedAt.toLocaleString(),
+          },
+        },
+        {
           id: "actions",
           th: {
             currentOrder,
@@ -230,11 +266,53 @@ const TablePictures = () => {
   )
 }
 
+type PictureFormProps = {
+  onSuccess?: () => void
+}
+
+export const PictureForm = (props: PictureFormProps) => {
+  const [pictureMutation] = useMutation(picture)
+  return (
+    <div>
+      <h1>Ajouter une image</h1>
+
+      <Form
+        submitText="Ajouter une image"
+        initialValues={{ href: "", product: "" }}
+        onSubmit={async (values) => {
+          try {
+            let picture = {
+              name: values.name,
+              href: values.href,
+              product: values.product,
+            }
+            await pictureMutation(picture)
+            props.onSuccess?.()
+          } catch (error: any) {
+            return { [FORM_ERROR]: error.toString() }
+          }
+        }}
+      >
+        <div>
+          <LabeledTextField name="name" label="Nom de l'image" placeholder="Nom de l'image" />
+          <LabeledTextField name="href" label="Lien" placeholder="Lien" />
+          <LabeledTextField name="product" label="Produit" placeholder="Produit" />
+          <button type="submit" />
+        </div>
+      </Form>
+    </div>
+
+  )
+}
+
 const HomePicture: BlitzPage = () => {
   return (
     <Layout title="Home">
       <Suspense fallback="Loading...">
         <UserInfo />
+      </Suspense>
+      <Suspense fallback="Loading...">
+        <PictureForm />
       </Suspense>
       <Suspense fallback="Loading...">
         <TablePictures />

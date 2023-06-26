@@ -8,6 +8,10 @@ import { Routes, BlitzPage } from "@blitzjs/next"
 import styles from "src/styles/Home.module.css"
 import Table from "src/core/components/table/Table"
 import getAllUser from "src/pages/admin/user/queries/getAllUser"
+import { LabeledTextField } from "src/core/components/LabeledTextField"
+import { Form, FORM_ERROR } from "src/core/components/Form"
+import user from "../user/mutation/addUser"
+
 /*
  * This file is just for a pleasant getting started page for your new app.
  * You can delete everything in here and start from scratch if you like.
@@ -367,11 +371,66 @@ const TableUser = () => {
   )
 }
 
+type UserFormProps = {
+  onSuccess?: () => void
+}
+
+export const UserForm = (props: UserFormProps) => {
+  const [userMutation] = useMutation(user)
+  return (
+    <div>
+      <h1>Cree un utilisateur</h1>
+
+      <Form
+        submitText="Cree un utilisateur"
+        initialValues={{ last_name: "", email: "" }}
+        onSubmit={async (values) => {
+          try {
+            let user = {
+              first_name: values.first_name,
+              last_name: values.last_name,
+              email: values.email,
+              phone: values.phone,
+              role: "USER" as any,
+              last_connexion: values.last_connexion,
+              purchase_month: 0,
+              purchase_year: 0,
+            }
+            await userMutation(user)
+            props.onSuccess?.()
+          } catch (error: any) {
+            return { [FORM_ERROR]: error.toString() }
+          }
+        }}
+      >
+        <div>
+          <LabeledTextField name="first_name" label="Prénom" placeholder="Prénom" />
+          <LabeledTextField name="last_name" label="Nom" placeholder="Nom" />
+          <LabeledTextField name="email" label="Email" placeholder="Email" />
+          <LabeledTextField
+            name="phone"
+            label="Numéro de téléphone"
+            placeholder="0XXXXXXXXX"
+            type="tel"
+            pattern="[0-9]{10}"
+          />
+          <button type="submit" />
+        </div>
+      </Form>
+    </div>
+
+  )
+}
+
+
 const HomeUser: BlitzPage = () => {
   return (
     <Layout title="Home">
       <Suspense fallback="Loading...">
         <UserInfo />
+      </Suspense>
+      <Suspense fallback={"Loading..."}>
+        <UserForm />
       </Suspense>
       <Suspense fallback="Loading...">
         <TableUser />

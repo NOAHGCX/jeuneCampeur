@@ -8,6 +8,11 @@ import { Routes, BlitzPage } from "@blitzjs/next"
 import styles from "src/styles/Home.module.css"
 import Table from "src/core/components/table/Table"
 import getAllAddressFact from "src/pages/admin/address_fact/queries/getAllAddressFact"
+import { LabeledTextField } from "src/core/components/LabeledTextField"
+import { Form, FORM_ERROR } from "src/core/components/Form"
+import address_fact from "../address_fact/mutation/addAddressFact"
+import signup from "../../../auth/mutations/signup"
+
 /*
  * This file is just for a pleasant getting started page for your new app.
  * You can delete everything in here and start from scratch if you like.
@@ -298,7 +303,7 @@ const TableAddressFact = () => {
             currentOrder,
             setCurrentOrder,
             colone: "complimentary",
-            text: "Appartement",
+            text: "Informations complémentaires",
             order: true,
             orderColumn: "complimentary",
             thSpanClasses: "justify-content-between",
@@ -381,11 +386,68 @@ const TableAddressFact = () => {
   )
 }
 
+type AddressFactFormProps = {
+  onSuccess?: () => void
+}
+
+export const AddressFactForm = (props: AddressFactFormProps) => {
+  const [addressFactMutation] = useMutation(address_fact)
+  return (
+    <div>
+      <h1>Creer une adresse</h1>
+
+      <Form
+        submitText="Creer une adresse"
+        initialValues={{ last_name: "", email: "" }}
+        onSubmit={async (values) => {
+          try {
+            let address_fact = {
+              first_name: values.first_name,
+              last_name: values.last_name,
+              email: values.email,
+              number: values.number,
+              road: values.road,
+              city: values.city,
+              department: values.department,
+              country: values.country,
+              postcode: values.postcode,
+              complimentary: values.complimentary,
+            }
+            await addressFactMutation(address_fact)
+            props.onSuccess?.()
+          } catch (error: any) {
+            return { [FORM_ERROR]: error.toString() }
+          }
+        }}
+      >
+        <div>
+          <LabeledTextField name="first_name" label="Prénom" placeholder="Prénom" />
+          <LabeledTextField name="last_name" label="Nom" placeholder="Nom" />
+          <LabeledTextField name="email" label="Email" placeholder="Email" />
+          <LabeledTextField name="number" label="Numero" placeholder="Numero" />
+          <LabeledTextField name="road" label="Rue" placeholder="Rue" />
+          <LabeledTextField name="city" label="Ville" placeholder="Ville" />
+          <LabeledTextField name="country" label="Pays" placeholder="Pays" />
+          <LabeledTextField name="department" label="Departement" placeholder="Departement" />
+          <LabeledTextField name="postcode" label="Code postal" placeholder="Code postal" />
+          <LabeledTextField name="complimentary" label="Informations complémentaires" placeholder="Informations complémentaires" />
+          <button type="submit" />
+        </div>
+      </Form>
+    </div>
+
+  )
+}
+
+
 const HomeAddressFact: BlitzPage = () => {
   return (
     <Layout title="Home">
       <Suspense fallback="Loading...">
         <UserInfo />
+      </Suspense>
+      <Suspense fallback="Loading...">
+        <AddressFactForm />
       </Suspense>
       <Suspense fallback="Loading...">
         <TableAddressFact />

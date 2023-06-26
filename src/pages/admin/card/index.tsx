@@ -96,7 +96,7 @@ const TableCard = () => {
       exportKey={[
         { label: "Id", key: "id" },
         { label: "idUser", key: "idUser" },
-        { label: "Panier", key: "product_card" },
+        { label: "Panier", key: "product_Card" },
         { label: "Créé le", key: "createdAt" },
         { label: "Mis à jour le", key: "updatedAt" },
       ]}
@@ -157,18 +157,18 @@ const TableCard = () => {
           },
         },
         {
-          id: "product_card",
+          id: "product_Card",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "product_card",
+            colone: "product_Card",
             text: "Panier",
             order: true,
-            orderColumn: "product_card",
+            orderColumn: "product_Card",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.product_card,
+            text: (item: any) => item.product_Card,
           },
         },
         {
