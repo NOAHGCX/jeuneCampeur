@@ -4,10 +4,11 @@ import Layout from "src/core/layouts/Layout"
 import { useCurrentUser } from "src/users/hooks/useCurrentUser"
 import logout from "src/auth/mutations/logout"
 import { useMutation, usePaginatedQuery, useQuery } from "@blitzjs/rpc"
-import { Routes, BlitzPage } from "@blitzjs/next"
+import { Routes, BlitzPage, useParam } from "@blitzjs/next"
 import styles from "src/styles/Home.module.css"
 import Table from "src/core/components/table/Table"
-import getAllProduct from "src/pages/admin/product/queries/getAllProduct"
+import getProductAndWishlist from "src/wishlist/queries/getProductAndWishlist"
+
 /*
  * This file is just for a pleasant getting started page for your new app.
  * You can delete everything in here and start from scratch if you like.
@@ -49,9 +50,9 @@ const UserInfo = () => {
   }
 }
 
-const TableProduct = () => {
+const TableProductWishlist = () => {
   const [keywords, setKeywords] = useState("")
-  const [items, setItems] = useState<any>()
+  var [items, setItems] = useState<any>()
   const [itemsPerPage, setItemsPerPage] = useState(60)
   const [currentOrder, setCurrentOrder] = useState<any>({ id: "asc" })
   const [page, setPage] = useState(0)
@@ -59,35 +60,42 @@ const TableProduct = () => {
   const [selectAll, setSelectAll] = useState(false)
   const [loadingMulti, setLoadingMulti] = useState(true)
 
+  const [id, setId] = useState<string | string[] | undefined>("id")
+
+  const idParam = useParam("id")
+  useEffect(() => {
+    setId(idParam)
+  }, [idParam])
+
 
   const queryOptions: any = {
     orderBy: currentOrder,
     skip: itemsPerPage * page,
     take: itemsPerPage,
+    where: { id: parseInt(id as string) || undefined }, // Search query based on the id parameter
+    include: {
+      products: true,
+    },
+  };
+
+  if (keywords !== null && keywords !== undefined && keywords !== '') {
+    queryOptions.where.OR = [
+      { products: { name: keywords } },
+      { products: { price: parseInt(keywords) || undefined } },
+      { products: { stock: parseInt(keywords) || undefined } },
+      { products: { sell_month: parseInt(keywords) || undefined } },
+      { products: { sell_year: parseInt(keywords) || undefined } },
+    ];
   }
 
-  if (keywords !== null && keywords !== undefined && keywords !== "") {
-    queryOptions.where = {
-      OR: [
-        { id: parseInt(keywords) || undefined },
-        { name: keywords },
-        // { categories: keywords },
-        { price: parseInt(keywords) || undefined },
-        { stock: parseInt(keywords) || undefined },
-        { sell_month: parseInt(keywords) || undefined },
-        { sell_year: parseInt(keywords) || undefined },
-      ],
-    }
-  }
-
-  const [{ product, count }, { refetch }] = usePaginatedQuery(getAllProduct, queryOptions)
+  const [{ wishlist, count }, { refetch }] = usePaginatedQuery(getProductAndWishlist, queryOptions);
 
   useEffect(() => {
-    console.log(product)
+    console.log(wishlist[0].products)
     console.log(keywords)
     console.log(currentOrder)
-    setItems(product)
-  }, [product, keywords, currentOrder])
+    setItems(wishlist[0].products)
+  }, [wishlist, keywords, currentOrder])
 
   return (
     <Table
@@ -97,7 +105,7 @@ const TableProduct = () => {
       setSelectAll={setSelectAll}
       exportPartial={true}
       exportAll={true}
-      add={"/admin/product/addProductPage"}
+      add={""}
       exportKey={[
         { label: "Id", key: "id" },
         { label: "Nom du produit", key: "name" },
@@ -107,7 +115,7 @@ const TableProduct = () => {
         { label: "Vente du mois de l'item", key: "sell_month" },
         { label: "Vente de l'année de l'item", key: "sell_year" },
       ]}
-      titre={`Liste des produits`}
+      titre={`Liste des produits de la wishlist`}
       key="table_liste_products"
       id="table_liste_products"
       setItemsPerPage={setItemsPerPage}
@@ -194,21 +202,6 @@ const TableProduct = () => {
           },
         },
         {
-          id: "categories",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "categories",
-            text: "Categorie",
-            order: true,
-            orderColumn: "categories",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.categories,
-          },
-        },
-        {
           id: "description",
           th: {
             currentOrder,
@@ -253,76 +246,26 @@ const TableProduct = () => {
             text: (item: any) => item.sell_year,
           },
         },
-        {
-          id: "pictures",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "pictures",
-            text: "Image du produit",
-            order: true,
-            orderColumn: "pictures",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.pictures,
-          },
-        },
-        {
-          id: "actions",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            text: "",
-            order: true,
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            type: "dropdown",
-            text: (item: any) => (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                height="20"
-                width="20"
-                className="m-auto"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2z m0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                />
-              </svg>
-            ),
-            dropdown: [
-              {
-                type: "link",
-                text: () => "Afficher",
-                href: (item: any) => `/patient/${item.id}`,
-              },
-            ],
-          },
-        },
       ]}
       empty="Aucun produit."
     />
   )
 }
 
-const HomeProduct: BlitzPage = () => {
+
+
+
+const HomeProductWishlist: BlitzPage = () => {
   return (
     <Layout title="Home">
       <Suspense fallback="Loading...">
         <UserInfo />
       </Suspense>
       <Suspense fallback="Loading...">
-        <TableProduct />
+        <TableProductWishlist />
       </Suspense>
     </Layout>
   )
 }
 
-export default HomeProduct
+export default HomeProductWishlist
