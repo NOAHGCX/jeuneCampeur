@@ -12,23 +12,19 @@ const Picture = z.object({
     .string()
     .min(2)
     .max(100),
-  product: z
-    .string()
-    .min(2)
-    .max(100)
-    .transform((str) => str.trim()),
+  productId: z.number()
 })
 export default resolver.pipe(
   resolver.zod(Picture),
   async (
-    { name, href, product },
+    { name, href, productId },
     ctx
   ) => {
     const picture = await db.pictures.create({
       data: {
         name: name,
         href: href,
-        product: product,
+        productId: productId,
       },
     })
     return picture

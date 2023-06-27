@@ -21,11 +21,13 @@ const Product = z.object({
     .min(5)
     .max(100)
     .transform((str) => str.trim()),
+  sell_month: z.number(),
+  sell_year: z.number(),
 })
 export default resolver.pipe(
   resolver.zod(Product),
   async (
-    { name, price, stock, description },
+    { name, price, stock, description, sell_month, sell_year },
     ctx
   ) => {
     const product = await db.product.create({
@@ -34,6 +36,8 @@ export default resolver.pipe(
         price,
         stock,
         description,
+        sell_month,
+        sell_year,
       },
     })
     return product

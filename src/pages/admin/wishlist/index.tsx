@@ -8,6 +8,7 @@ import { Routes, BlitzPage } from "@blitzjs/next"
 import styles from "src/styles/Home.module.css"
 import Table from "src/core/components/table/Table"
 import getAllWishlist from "src/pages/admin/wishlist/queries/getAllWishlist"
+
 /*
  * This file is just for a pleasant getting started page for your new app.
  * You can delete everything in here and start from scratch if you like.
@@ -93,7 +94,7 @@ const TableWishlist = () => {
       setSelectAll={setSelectAll}
       exportPartial={true}
       exportAll={true}
-      add={"/wishlist/creation"}
+      add={""}
       exportKey={[
         { label: "Id", key: "id" },
         { label: "Nom", key: "last_name" },
@@ -174,37 +175,7 @@ const TableWishlist = () => {
             text: (item: any) => item.idUser,
           },
         },
-        {
-          id: "idProduct",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "idProduct",
-            text: "idProduct",
-            order: true,
-            orderColumn: "idProduct",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.idProduct,
-          },
-        },
-        {
-          id: "product_wish",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            colone: "product_wish",
-            text: "Liste de souhaits",
-            order: true,
-            orderColumn: "product_wish",
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            text: (item: any) => item.product_wish,
-          },
-        },
-        {
+       {
           id: "createdAt",
           th: {
             currentOrder,
@@ -267,7 +238,7 @@ const TableWishlist = () => {
               {
                 type: "link",
                 text: () => "Afficher",
-                href: (item: any) => `/patient/${item.id}`,
+                href: (item: any) => `/admin/wishlist/${item.id}`,
               },
             ],
           },
@@ -277,6 +248,7 @@ const TableWishlist = () => {
     />
   )
 }
+
 
 const HomeWishlist: BlitzPage = () => {
   return (

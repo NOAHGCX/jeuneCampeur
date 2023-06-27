@@ -87,47 +87,47 @@ type TableProps = {
   add?: string
 }
 const Table = ({
-  titre,
-  items,
-  config,
-  id,
-  count,
-  paginationTop,
-  paginationBottom,
-  setKeywords,
-  setPage,
-  setItemsPerPage,
-  itemsPerPage,
-  exportPartial = false,
-  keywords = "",
-  exportKey = [],
-  exportAll = false,
-  importAll = false,
-  entrepriseId,
-  refetch,
-  multiSelect = false,
-  selectAll = false,
-  selectList = [],
-  setSelectList = (selectList) => {},
-  setSelectAll = (selectAll) => {},
-  tableTheadClasses = "",
-  tableClasses = "",
-  tableTbodyClasses = "",
-  tableTheadTrClasses = "",
-  tableTbodyClassesTr = "",
-  multiOptions = {
-    text: () => {
-      return ""
-    },
-  },
-  multiSelectValue = (item) => {
-    return item.id
-  },
-  multiSelectCondition = (item) => {
-    return true
-  },
-  add = "",
-}: TableProps) => {
+                 titre,
+                 items,
+                 config,
+                 id,
+                 count,
+                 paginationTop,
+                 paginationBottom,
+                 setKeywords,
+                 setPage,
+                 setItemsPerPage,
+                 itemsPerPage,
+                 exportPartial = false,
+                 keywords = "",
+                 exportKey = [],
+                 exportAll = false,
+                 importAll = false,
+                 entrepriseId,
+                 refetch,
+                 multiSelect = false,
+                 selectAll = false,
+                 selectList = [],
+                 setSelectList = (selectList) => {},
+                 setSelectAll = (selectAll) => {},
+                 tableTheadClasses = "",
+                 tableClasses = "",
+                 tableTbodyClasses = "",
+                 tableTheadTrClasses = "",
+                 tableTbodyClassesTr = "",
+                 multiOptions = {
+                   text: () => {
+                     return ""
+                   },
+                 },
+                 multiSelectValue = (item) => {
+                   return item.id
+                 },
+                 multiSelectCondition = (item) => {
+                   return true
+                 },
+                 add = "",
+               }: TableProps) => {
   const [openExport, setOpenExport] = React.useState(false)
   const [exportData, setExportData] = React.useState<any>([])
   const [search, setSearch] = React.useState(keywords)
@@ -192,7 +192,7 @@ const Table = ({
   }
   return (
     <div className="mx-4 w-full flex">
-      <div className="py-8 flex flex-column w-full">
+      <div className=" flex flex-col w-full">
         <div className="flex flex-row mb-1 sm:mb-0 justify-between w-full">
           <h2 className="text-2xl leading-tight">{titre}</h2>
           <div className="text-end">
@@ -308,101 +308,101 @@ const Table = ({
           </div>
         ) : (
           <>
-            <div className={`flex flex-row w-full justify-content-between items-end`}>
+            <div className={`flex flex-row w-full justify-between items-end`}>
               {multiOptions && <ActionsDropdown {...multiOptions} />}
               <span></span>
               <TablePagination {...paginationTop} />
             </div>
-            <div className="flex flex-col -mx-4 sm:-mx-5 px-4 sm:px-8 py-12">
-              <div className="inline-block min-w-full rounded-lg min-h-10em">
+            <div className="flex flex-col ">
+              <div className=" min-w-full rounded-lg min-h-10em">
                 <table className="min-w-full leading-normal">
                   <thead>
-                    <tr className={tableTheadTrClasses}>
-                      {multiSelect && (
-                        <Th
-                          thSpanClasses={`flex my-auto`}
-                          key={`${id}_thead_tr_multiselect`}
-                          parentKey={`${id}_tbody_th`}
-                          id={"multiselect"}
-                          colone={"multiselect"}
-                          text={
-                            <input
-                              type="checkbox"
-                              className="mx-1.5"
-                              name="all"
-                              onChange={(e) => checkboxAllChange(e)}
-                              checked={selectAll}
-                            />
-                          }
-                          order={false}
-                          currentOrder={{ colone: id, order: "asc" }}
-                          setCurrentOrder={() => {}}
-                        />
-                      )}
-                      {config.map((component) => (
-                        <Th
-                          thClasses={`${multiSelect ? "border-l" : ""}`}
-                          key={`${id}_thead_tr_${component.id}`}
-                          parentKey={`${id}_tbody_th`}
-                          id={component.id}
-                          {...component.th}
-                        />
-                      ))}
-                    </tr>
+                  <tr className={tableTheadTrClasses}>
+                    {multiSelect && (
+                      <Th
+                        thSpanClasses={`flex my-auto`}
+                        key={`${id}_thead_tr_multiselect`}
+                        parentKey={`${id}_tbody_th`}
+                        id={"multiselect"}
+                        colone={"multiselect"}
+                        text={
+                          <input
+                            type="checkbox"
+                            className="mx-1.5"
+                            name="all"
+                            onChange={(e) => checkboxAllChange(e)}
+                            checked={selectAll}
+                          />
+                        }
+                        order={false}
+                        currentOrder={{ colone: id, order: "asc" }}
+                        setCurrentOrder={() => {}}
+                      />
+                    )}
+                    {config.map((component) => (
+                      <Th
+                        thClasses={`${multiSelect ? "border-l" : ""}`}
+                        key={`${id}_thead_tr_${component.id}`}
+                        parentKey={`${id}_tbody_th`}
+                        id={component.id}
+                        {...component.th}
+                      />
+                    ))}
+                  </tr>
                   </thead>
                   <tbody>
-                    {items &&
-                      items.length > 0 &&
-                      items.map((item) => (
-                        <tr
-                          key={`${id}_tbody_tr_${item.id}`}
-                          className={`${tableTbodyClassesTr} hover:bg-indigo-50`}
-                        >
-                          {multiSelect && (
-                            <>
-                              {multiSelectCondition(item) ? (
-                                <Td
-                                  key={`${id}_tbody_tr_${item.id}_multiselect_td`}
-                                  parentKey={`${id}_tbody_tr_${item.id}_multiselect_td`}
-                                  text={(item) => {
-                                    return (
-                                      <>
-                                        <input
-                                          type="checkbox"
-                                          name="multiselect[]"
-                                          value={multiSelectValue(item).toString()}
-                                          checked={
-                                            selectList.indexOf(
-                                              multiSelectValue(item).toString()
-                                            ) !== -1
-                                          }
-                                          onChange={(e) => checkboxChange(e)}
-                                        />
-                                      </>
-                                    )
-                                  }}
-                                  item={item}
-                                  items={items}
-                                />
-                              ) : (
-                                <td
-                                  className={`px-3 py-2.5 border-b border-gray-200 text-sm group relative`}
-                                />
-                              )}
-                            </>
-                          )}
-                          {config.map((components, l) => (
-                            <Td
-                              tdClasses={`${multiSelect ? "border-l" : ""}`}
-                              key={`${id}_tbody_tr_${item.id}_${components.id}_td`}
-                              parentKey={`${id}_tbody_tr_${item.id}_${components.id}_td`}
-                              {...components.td}
-                              item={item}
-                              items={items}
-                            />
-                          ))}
-                        </tr>
-                      ))}
+                  {items &&
+                    items.length > 0 &&
+                    items.map((item) => (
+                      <tr
+                        key={`${id}_tbody_tr_${item.id}`}
+                        className={`${tableTbodyClassesTr} hover:bg-indigo-50`}
+                      >
+                        {multiSelect && (
+                          <>
+                            {multiSelectCondition(item) ? (
+                              <Td
+                                key={`${id}_tbody_tr_${item.id}_multiselect_td`}
+                                parentKey={`${id}_tbody_tr_${item.id}_multiselect_td`}
+                                text={(item) => {
+                                  return (
+                                    <>
+                                      <input
+                                        type="checkbox"
+                                        name="multiselect[]"
+                                        value={multiSelectValue(item).toString()}
+                                        checked={
+                                          selectList.indexOf(
+                                            multiSelectValue(item).toString()
+                                          ) !== -1
+                                        }
+                                        onChange={(e) => checkboxChange(e)}
+                                      />
+                                    </>
+                                  )
+                                }}
+                                item={item}
+                                items={items}
+                              />
+                            ) : (
+                              <td
+                                className={`px-3 py-2.5 border-b border-gray-200 text-sm group relative`}
+                              />
+                            )}
+                          </>
+                        )}
+                        {config.map((components, l) => (
+                          <Td
+                            tdClasses={`${multiSelect ? "border-l" : ""}`}
+                            key={`${id}_tbody_tr_${item.id}_${components.id}_td`}
+                            parentKey={`${id}_tbody_tr_${item.id}_${components.id}_td`}
+                            {...components.td}
+                            item={item}
+                            items={items}
+                          />
+                        ))}
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
