@@ -7,11 +7,12 @@ const ProductCard = z.object({
   idUser: z.number(),
   idAddressBase: z.number(),
   idAddressFact: z.number(),
+  totalPrice: z.number(),
 })
 export default resolver.pipe(
   resolver.zod(ProductCard),
   async (
-    { idUser, idAddressBase, idAddressFact },
+    { idUser, idAddressBase, idAddressFact, totalPrice },
     ctx
   ) => {
 
@@ -19,7 +20,8 @@ export default resolver.pipe(
       data: {
       idUser,
       idAddressBase,
-      idAddressFact
+      idAddressFact,
+      totalPrice
     },
   }
     )
