@@ -174,12 +174,16 @@ const ProductDetails = (props: ProductDetailsProps) => {
       }
       );
     }
+    console.log("prdocutdea", props.product)
   }, [newList])
   return (
     <div className="w-64 p-4 border border-gray-300 rounded bg-white">
       <h2 className="text-lg font-bold mb-2">{props.product.name}</h2>
       <p className="text-gray-800 mb-2">Prix : {props.product.price}</p>
-      <select
+      {props.product.stock > 0 ? (
+        <div>
+        <p className="text-gray-800 mb-2">En stock</p>
+        <select
         value={quantity}
         onChange={handleQuantityChange}
         className="w-full mb-2 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
@@ -192,6 +196,11 @@ const ProductDetails = (props: ProductDetailsProps) => {
       >
         Ajouter au panier
       </button>
+      </div>
+      ) : (
+        <p className="text-gray-800 mb-2">En rupture de stock</p>
+      )}
+
       <button
         onClick={handleAddToWishlist}
         className="w-full bg-gray-300 text-gray-800 py-2 rounded mt-2 hover:bg-gray-400"
