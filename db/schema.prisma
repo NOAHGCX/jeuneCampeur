@@ -162,6 +162,8 @@ model Review {
 
 model BDC {
   id          Int                @id @default(autoincrement())
+  deliveryStatus  DeliveryStatus @default(PENDING)
+  totalPrice  Float
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
 
@@ -172,6 +174,12 @@ model BDC {
   user        User @relation(fields: [idUser], references: [id])
   idUser      Int
   product_BDC Product_BDC[]
+}
+
+enum DeliveryStatus {
+  PENDING
+  DELIVERED
+  ERROR
 }
 
 model Product_BDC {

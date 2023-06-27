@@ -212,9 +212,9 @@ const Panier = () => {
       <div className="flex items-center w-full">
         <img src="/banniere.jpg" alt="Thumbnail" className="w-24 h-24 mr-3" />
         <div className="flex items-center">
-          <p className="mr-3">
-            <strong>{productCard.product.name}</strong>
-          </p>
+        <a href={`/produit/${productCard.product.id}`} className="mr-3">
+          <strong>{productCard.product.name}</strong>
+        </a>
           <p className="mr-3">
             <strong>Quantité:</strong> {productCard.quantity}
           </p>
@@ -485,11 +485,15 @@ const Panier = () => {
           submitText="Payer"
           initialValues={{ idAddressBase: "", idAddressFact: "", userId: ""}}
           onSubmit={async (values) => {
+            const totalPrice = card.reduce((acc, productCard) => {
+              return acc + productCard.product.price * productCard.quantity;
+            }, 0);
             try {
               const BDC = {
                 idAddressBase: parseInt(selectedBase),
                 idAddressFact: parseInt(selectedFact),
                 idUser: parseInt(currentUser.id),
+                totalPrice: totalPrice
               };
               const bdc = await createBDC(BDC);
               console.log("card", card)
@@ -531,9 +535,9 @@ const Panier = () => {
                 <div>
                   <h3 className="text-xl font-bold mb-4">Ajouter une carte:</h3>
                   <div >
-                    <LabeledTextField name="cardNumber" pattern="[0-9\s]{13,19}" label="CardNumber" placeholder="Numero de carte" />
-                    <LabeledTextField name="cardHolder" label="CardHolder" placeholder="Nom" />
-                    <LabeledTextField name="expirationDate" label="expirationDate" type="date" placeholder="Date d'expiration" />
+                    <LabeledTextField name="cardNumber" pattern="[0-9\s]{13,19}" label="Numero de carte" placeholder="Numero de carte" />
+                    <LabeledTextField name="cardHolder" label="Nom" placeholder="Nom" />
+                    <LabeledTextField name="expirationDate" label="Date d'expiration" type="date" placeholder="Date d'expiration" />
                     <LabeledTextField name="cvv" label="Cvv"  pattern="[0-9\s]{3}" placeholder="CVV" />
                   </div>
                 </div>

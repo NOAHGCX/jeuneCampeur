@@ -130,6 +130,8 @@ const seed = async () => {
         idUser: faker.datatype.number({ min: 1, max: i, precision: 1 }), // Replace with appropriate range based on your users
         idAddressFact: faker.datatype.number({ min: 1, max: i, precision: 1 }), // Replace with appropriate range based on your addresses
         idAddressBase: faker.datatype.number({ min: 1, max: i, precision: 1 }), // Replace with appropriate range based on your addresses
+        deliveryStatus: faker.helpers.arrayElement(["PENDING", "DELIVERED", "ERROR"]),
+        totalPrice: faker.datatype.number({ min: 1, max: i, precision: 1 }),
         // Add appropriate fields for BDC model
       },
     })
