@@ -7,7 +7,7 @@ import createWishList from "src/wishlist/mutations/createWishList"
 import addProductWishList from "src/wishlist/mutations/addProductWishList"
 import getWishlistUser from "src/wishlist/queries/getWishlistUser"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import getCardByUser from 'src/card/queries/getCardByUser';
 import createCard from 'src/card/mutations/createCard';
@@ -25,6 +25,8 @@ const ProductDetails = (props: ProductDetailsProps) => {
   const currentUser = useCurrentUser()
   const [wishList, setWishList] = useState<any>([]);
   const [newList, setNewList] = useState<any>(0);
+  const [userConnected, setUserConnected] = useState<any>(currentUser ? true : false);
+
   const handleQuantityChange = (e) => {
     const newQuantity = parseInt(e.target.value);
     setQuantity(quantity = newQuantity);
@@ -111,7 +113,10 @@ const ProductDetails = (props: ProductDetailsProps) => {
       }
       );
     }
-    console.log(`Ajouter au panier : ${props.product.name}, Quantité : ${quantity}`);
+    else{
+      setUserConnected(false)
+      setShowPopup(true);
+    }
   };
 
 
@@ -156,6 +161,7 @@ const ProductDetails = (props: ProductDetailsProps) => {
 
 
   useEffect(() => {
+    console.log(userConnected)
     if (currentUser) {
       getWishlistUser(currentUser.id)
       .then((wishList) => {
@@ -192,7 +198,7 @@ const ProductDetails = (props: ProductDetailsProps) => {
       >
         Ajouter à la liste de souhaits
       </button>
-      {showPopup && (
+      {showPopup && userConnected && (
         <div className="fixed inset-0 flex items-center justify-center z-10 bg-black bg-opacity-50">
           <div className="bg-white p-4 rounded shadow">
             <h2 className="text-lg font-bold mb-2">Liste de souhaits</h2>
@@ -262,6 +268,23 @@ const ProductDetails = (props: ProductDetailsProps) => {
           </div>
         </div>
       )}
+         {showPopup && !userConnected && (
+  <div className="fixed inset-0 flex items-center justify-center z-10 bg-black bg-opacity-50">
+    <div className="bg-white p-4 rounded shadow relative">
+      <h2 className="text-lg font-bold mb-2">Veuillez vous connecter</h2>
+      <p className="text-gray-800 mb-5">Veuillez vous connecter pour accéder à cette fonctionnalité.</p>
+      <a href="/login" className="bg-blue-500 text-white py-2 px-4 rounded mt-2 hover:bg-blue-600">
+        Se connecter
+      </a>
+      <button
+        onClick={() => handleClosePopup()}
+        className="bg-transparent border-none absolute top-0 right-1 mt-2 mr-2 text-gray-600 cursor-pointer"
+      >
+        <FontAwesomeIcon icon={faTimes} size="lg" color="black" />
+      </button>
+    </div>
+  </div>
+)}
     </div>
   );
 };

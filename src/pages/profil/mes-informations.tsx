@@ -139,4 +139,5 @@ const UserInfoPage = () => {
   );
 };
 
+UserInfoPage.authenticate = {redirectTo: '/auth/login'}
 export default UserInfoPage;

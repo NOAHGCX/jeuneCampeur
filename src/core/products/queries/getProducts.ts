@@ -7,7 +7,6 @@ interface GetProductInput
   extends Pick<Prisma.ProductFindManyArgs, "where" | "orderBy" | "skip" | "take" | "include"> {}
 
 export default resolver.pipe(
-  resolver.authorize(),
   async ({ where, orderBy, skip = 0, take = 100 }: GetProductInput) => {
     const {
       items: products,

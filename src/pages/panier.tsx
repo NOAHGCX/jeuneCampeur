@@ -5,7 +5,7 @@ import { useMutation, useQuery } from "@blitzjs/rpc"
 import { Routes, BlitzPage } from '@blitzjs/next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import getCardByUser from 'src/card/queries/getCardByUser';
-import { faCheck, faPlus, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faPlus, faTimes, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import deleteProductCard from 'src/productCard/mutations/deleteProductCard';
 import getAddressBUser from "src/address_Base/queries/getAddressBUser"
 import getAddressFUser from "src/address_Fact/queries/getAddressFUser"
@@ -16,6 +16,7 @@ import { Form, FORM_ERROR } from "src/core/components/Form"
 import createBDC from "src/BDC/mutations/createBDC"
 import createProductBDC from 'src/core/productBDC/mutations/createProductBDC';
 import { PDFDocument, rgb } from 'pdf-lib';
+import updateStats from 'src/stats/mutations/updateStats';
 
 const Panier = () => {
   const currentUser = useCurrentUser();
@@ -86,12 +87,12 @@ const Panier = () => {
   };
 
   const handleSelectBase = (baseId) => {
-    setSelectedBase(baseId);
+    setSelectedBase(baseId.id);
     console.log("selectedBase", selectedBase)
   };
 
   const handleSelectFact = (factId) => {
-    setSelectedFact(factId);
+    setSelectedFact(factId.id);
     console.log("selectedFact", selectedFact)
   };
 
@@ -194,43 +195,49 @@ const Panier = () => {
 
   return (
     <main className="flex flex-col items-center">
-    <ul className="grid gap-4 grid-cols-3 w-750 h-400 text-sm mt-3 rounded-5 sticky overflow-auto list-none marker:scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 border border-gray-300">
-      {card.map((productCard) => (
-        <li key={productCard.id} className={"flex items-center justify-between w-750"}>
-          <div className="flex items-center w-750">
-            <img src="/banniere.jpg" alt="Thumbnail" className="w-24 h-24 mr-30" />
-            <div>
-              <div className="flex items-center">
-                <p className="mr-30">
-                  <strong>Nom:</strong> {productCard.product.name}
-                </p>
-                <p className="mr-30">
-                  <strong>Quantité:</strong> {productCard.quantity}
-                </p>
-                <p>
-                  <strong>Prix:</strong> {productCard.product.price * productCard.quantity}
-                </p>
-              </div>
-            </div>
-          </div>
-          <label className="p-2 rounded-full bg-red-500 text-white cursor-pointer" htmlFor={`product-checkbox-${productCard.id}`}>
-            <FontAwesomeIcon icon={faTrashAlt} />
-          </label>
-          <input
-            type="checkbox"
-            id={`product-checkbox-${productCard.id}`}
-            className="hidden"
-            onChange={() => handleRemoveProduct(productCard.id)}
-          />
-        </li>
-      ))}
-    </ul>
-    <button
-      className="p-2 rounded-full bg-green-500 text-white mb-4"
-      onClick={handleValidate}
-    >
+    {card.length === 0 ? (
+    <div className="flex items-center justify-center w-750 h-400">
+      <p className="text-2xl font-bold">Votre panier est vide</p>
+    </div>
+  ) : (
+    <div className="flex flex-col items-center">
+   <ul className="w-500 h-400 text-sm mt-3 rounded-5 sticky overflow-auto list-none marker:scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 border border-gray-300 mb-10 flex-col">
+  {card.map((productCard) => (
+    <li key={productCard.id} className="flex items-center justify-between w-400 m-20 m-20">
+      <div className="flex items-center w-full">
+        <img src="/banniere.jpg" alt="Thumbnail" className="w-24 h-24 mr-3" />
+        <div className="flex items-center">
+          <p className="mr-3">
+            <strong>{productCard.product.name}</strong>
+          </p>
+          <p className="mr-3">
+            <strong>Quantité:</strong> {productCard.quantity}
+          </p>
+          <p>
+            <strong>Prix:</strong> {productCard.product.price * productCard.quantity}
+          </p>
+        </div>
+        <label
+          className="p-2 rounded-full right-6 absolute  bg-red-500 text-white cursor-pointer"
+          htmlFor={`product-checkbox-${productCard.id}`}
+        >
+          <FontAwesomeIcon icon={faTrashAlt} />
+        </label>
+        <input
+          type="checkbox"
+          id={`product-checkbox-${productCard.id}`}
+          className="hidden"
+          onChange={() => handleRemoveProduct(productCard.id)}
+        />
+      </div>
+    </li>
+  ))}
+</ul>
+    <button className="p-2 rounded-full bg-green-500 text-white mb-4" onClick={handleValidate}>
       Valider
     </button>
+  </div>
+  )}
     {showPopup && (
       <div className="fixed overflow-auto top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black bg-opacity-50">
         <div className="bg-white p-4 rounded-md h-400 overflow-auto">
@@ -298,18 +305,42 @@ const Panier = () => {
                 }}
               >
                 <div>
-                  <h3 className="text-xl font-bold mb-4">Créer une adresse de base:</h3>
-                  <div>
-                    <LabeledTextField name="name" label="Nom" placeholder="Nom" />
-                    <LabeledTextField name="number" label="Numéro" placeholder="Numéro" />
-                    <LabeledTextField name="road" label="Rue" placeholder="Rue" />
-                    <LabeledTextField name="city" label="Ville" placeholder="Ville" />
-                    <LabeledTextField name="department" label="Département" placeholder="Département" />
-                    <LabeledTextField name="country" label="Pays" placeholder="Pays" />
-                    <LabeledTextField name="postcode" label="Code Postal" placeholder="Code Postal" />
-                    <LabeledTextField name="complimentary" label="Complémentaire" placeholder="Complémentaire" />
-                  </div>
+              <h3 className="text-xl font-bold mb-4 flex justify-between">
+                Créer une adresse de base:
+                <button
+                  onClick={() => setShowBaseForm(false)}
+                  className="bg-transparent border-none text-gray-600 cursor-pointer"
+                >
+                  <FontAwesomeIcon icon={faTimes} size="lg" color="black" />
+                </button>
+              </h3>
+              <div className="grid grid-cols-2 gap-1">
+                <div>
+                  <LabeledTextField name="name" label="Nom" placeholder="Nom" />
                 </div>
+                <div>
+                  <LabeledTextField name="number" label="Numéro" placeholder="Numéro" />
+                </div>
+                <div>
+                  <LabeledTextField name="road" label="Rue" placeholder="Rue" />
+                </div>
+                <div>
+                  <LabeledTextField name="city" label="Ville" placeholder="Ville" />
+                </div>
+                <div>
+                  <LabeledTextField name="department" label="Département" placeholder="Département" />
+                </div>
+                <div>
+                  <LabeledTextField name="country" label="Pays" placeholder="Pays" />
+                </div>
+                <div>
+                  <LabeledTextField name="postcode" label="Code Postal" placeholder="Code Postal" />
+                </div>
+                <div>
+                  <LabeledTextField name="complimentary" label="Complémentaire" placeholder="Complémentaire" />
+                </div>
+              </div>
+            </div>
               </Form>
             ) : (
               <button
@@ -390,20 +421,48 @@ const Panier = () => {
                 }}
               >
                 <div>
-                  <h3 className="text-xl font-bold mb-4">Créer une adresse de facturation:</h3>
-                  <div className="">
-                    <LabeledTextField name="first_name" label="Prénom" placeholder="Prénom" />
-                    <LabeledTextField name="last_name" label="Nom" placeholder="Nom" />
-                    <LabeledTextField name="email" label="Email" placeholder="Email" />
-                    <LabeledTextField name="number" label="Numéro" placeholder="Numéro" />
-                    <LabeledTextField name="road" label="Rue" placeholder="Rue" />
-                    <LabeledTextField name="city" label="Ville" placeholder="Ville" />
-                    <LabeledTextField name="departement" label="Département" placeholder="Département" />
-                    <LabeledTextField name="country" label="Pays" placeholder="Pays" />
-                    <LabeledTextField name="postcode" label="Code Postal" placeholder="Code Postal" />
-                    <LabeledTextField name="complimentary" label="Complémentaire" placeholder="Complémentaire" />
-                  </div>
+                  <h3 className="text-xl font-bold mb-4 flex justify-between">
+                  Créer une adresse de facturation:
+                <button
+                  onClick={() => setShowFactForm(false)}
+                  className="bg-transparent border-none text-gray-600 cursor-pointer"
+                >
+                  <FontAwesomeIcon icon={faTimes} size="lg" color="black" />
+                </button>
+              </h3>
+              <div className="grid grid-cols-2 gap-1">
+                <div>
+                  <LabeledTextField name="first_name" label="Prénom" placeholder="Prénom" />
                 </div>
+                <div>
+                  <LabeledTextField name="last_name" label="Nom" placeholder="Nom" />
+                </div>
+                <div>
+                  <LabeledTextField name="email" label="Email" placeholder="Email" />
+                </div>
+                <div>
+                  <LabeledTextField name="number" label="Numéro" placeholder="Numéro" />
+                </div>
+                <div>
+                  <LabeledTextField name="road" label="Rue" placeholder="Rue" />
+                </div>
+                <div>
+                  <LabeledTextField name="city" label="Ville" placeholder="Ville" />
+                </div>
+                <div>
+                  <LabeledTextField name="departement" label="Département" placeholder="Département" />
+                </div>
+                <div>
+                  <LabeledTextField name="country" label="Pays" placeholder="Pays" />
+                </div>
+                <div>
+                  <LabeledTextField name="postcode" label="Code Postal" placeholder="Code Postal" />
+                </div>
+                <div>
+                  <LabeledTextField name="complimentary" label="Complémentaire" placeholder="Complémentaire" />
+                </div>
+              </div>
+            </div>
               </Form>
             ) : (
               <button
@@ -423,9 +482,9 @@ const Panier = () => {
           onSubmit={async (values) => {
             try {
               const BDC = {
-                idAddressBase: parseInt(selectedBase.id!),
-                idAddressFact: parseInt(selectedFact.id!),
-                idUser: parseInt(currentUser.id),
+                idAddressBase: parseInt(selectedBase),
+                idAddressFact: parseInt(selectedFact),
+                userId: parseInt(currentUser.id),
               };
               const bdc = await createBDC(BDC);
               console.log("card", card)
@@ -437,6 +496,7 @@ const Panier = () => {
                     quantity: productCard.quantity,
                   };
                   const productBDC = createProductBDC(product);
+                  updateStats({id: productCard.product.id, quantity: productCard.quantity, userId : currentUser.id})
                   deleteProductCard({ id: productCard.id })
                   .then((productCard) => {
                     console.log('productCard', productCard);
@@ -530,4 +590,5 @@ const PanierPage: BlitzPage = () => {
   );
 };
 
+PanierPage.authenticate = {redirectTo: '/auth/login'}
 export default PanierPage;

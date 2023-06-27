@@ -23,7 +23,7 @@ export default resolver.pipe(
     ctx
   ) => {
 
-    const wishlist = await db.address_Fact.create({
+    const address = await db.address_Fact.create({
       data: {
       first_name,
       last_name,
@@ -39,6 +39,6 @@ export default resolver.pipe(
     },
   }
     )
-    return wishlist
+    return address
   }
 )

@@ -8,11 +8,13 @@ import ReviewsComponent from "src/core/components/product/ReviewsComponent"
 import ProductDetail from "src/core/components/product/ProductDetails"
 import CarrousselProduct from "src/core/components/product/CarrousselProduct";
 import Layout from "src/core/components/Layout"
+import { useCurrentUser } from 'src/users/hooks/useCurrentUser';
 
 const Product = () => {
   const [idProduct, setIdProduct] = useState<any>(null)
   const idParam = useParam("id")
   const [product] = useQuery(oneProduct, parseInt(idParam! as string))
+  const currentUser = useCurrentUser();
 
   useEffect(() => {
     setIdProduct(idParam)

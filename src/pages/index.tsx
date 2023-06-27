@@ -167,5 +167,5 @@ const Home: BlitzPage = () => {
   </div>
   )
 }
-
+Home.authenticate = false
 export default Home

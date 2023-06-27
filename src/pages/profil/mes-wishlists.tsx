@@ -13,7 +13,7 @@ import createWishList from "src/wishlist/mutations/createWishList"
 const WishlistList = () => {
   const [wishListMutation] = useMutation(createWishList)
   const [wishlists, setWishlists] = useState([]);
-  const [selectedWishlist, setSelectedWishlist] = useState(null);
+  var [selectedWishlist, setSelectedWishlist] = useState(null);
   const currentUser = useCurrentUser();
   const [newList, setNewList] = useState(0);
   const [showPopup, setShowPopup] = useState(false); // State for controlling the visibility of the popup
@@ -33,7 +33,8 @@ const WishlistList = () => {
 
   const handleWishlistClick = async (wishlistId) => {
     const selected = wishlists.find((wishlist) => wishlist.id === wishlistId);
-    setSelectedWishlist(selected);
+    setSelectedWishlist(selectedWishlist = selected);
+    console.log('wishlistId', selectedWishlist)
   };
 
   const handleToggleDropdown = () => {
@@ -74,20 +75,24 @@ const WishlistList = () => {
       </ul>
 
       {selectedWishlist && (
-        <div className="w-full max-w-md p-4 bg-white rounded shadow">
-          <h2 className="text-xl font-semibold mb-4">Produits de la wishlist "{selectedWishlist.name}"</h2>
-          <ul>
-            {selectedWishlist.products.map((product) => (
-              <li key={product.id} className="mb-4">
-                <p className="font-semibold">Nom: {product.name}</p>
-                <p>Prix: {product.price}</p>
-                <p>Stock: {product.stock}</p>
-                <p>Description: {product.description}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+          <div className="w-full max-w-md p-4 bg-white rounded shadow">
+            <h2 className="text-xl font-semibold mb-4">Produits de la wishlist "{selectedWishlist.name}"</h2>
+            <ul>
+              {selectedWishlist.products.map((product) => (
+                <li key={product.id} className="mb-4">
+                  <p className="font-semibold">
+                  <a href={`/product/${product.id}`}>
+                    <span style={{ color: 'black' }}>Nom:</span> <span className="text-blue-500 hover:underline">{product.name}</span>
+                  </a>
+                  </p>
+                  <p>Prix: {product.price}</p>
+                  <p>Stock: {product.stock}</p>
+                  <p>Description: {product.description}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -162,4 +167,5 @@ const WishlistPage: BlitzPage = () => {
   );
 };
 
+WishlistPage.authenticate = {redirectTo: '/auth/login'}
 export default WishlistPage;

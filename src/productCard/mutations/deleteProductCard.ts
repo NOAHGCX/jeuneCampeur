@@ -8,8 +8,7 @@ const ProductCard = z.object({
 export default resolver.pipe(
   resolver.zod(ProductCard),
   async (
-    { id },
-    ctx
+    { id }
   ) => {
 
     const updatedProductCard = await db.product_Card.delete({

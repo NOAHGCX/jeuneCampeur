@@ -14,7 +14,7 @@ const UserDropdown = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative z-10">
     <button
       onClick={toggleDropdown}
       className="flex items-center space-x-1 text-gray-600 hover:text-gray-800 focus:outline-none mr-4"
@@ -23,7 +23,14 @@ const UserDropdown = () => {
     </button>
     {isOpen && (
       <div className="absolute right-0 mt-2 py-2 bg-white border border-gray-200 rounded shadow-lg">
-        <a href="/profil/mes-commandes" className="block px-4 py-2 hover:bg-gray-100">
+        {!currentUser ? (
+
+          <a href="/auth/login" className="block px-4 py-2 hover:bg-gray-100">
+            Me connecter
+          </a>
+        ) : (
+          <div>
+          <a href="/profil/mes-commandes" className="block px-4 py-2 hover:bg-gray-100">
           Mes commandes
         </a>
         <a href="/profil/mes-wishlists" className="block px-4 py-2 hover:bg-gray-100">
@@ -31,8 +38,7 @@ const UserDropdown = () => {
         </a>
         <a href="/profil/mes-informations" className="block px-4 py-2 hover:bg-gray-100">
           Mes informations
-        </a>
-        {currentUser ? (
+          </a>
           <a
             onClick={async () => {
               await logoutMutation();
@@ -41,10 +47,7 @@ const UserDropdown = () => {
           >
             Me déconnecter
           </a>
-        ) : (
-          <a href="/auth/login" className="block px-4 py-2 hover:bg-gray-100">
-            Me connecter
-          </a>
+          </div>
         )}
       </div>
     )}
@@ -53,22 +56,28 @@ const UserDropdown = () => {
 }
 
 const CartButton = () => {
-  return (
-    <a href="/panier" className="ml-3 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-      <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
-      Panier
-    </a>
+  const currentUser = useCurrentUser();
+
+   return (
+    currentUser ? (
+      <div>
+        <a href="/panier" className="ml-3 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+          <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
+          Panier
+        </a>
+      </div>
+    ) : null
   );
 }
-
 type LayoutProps = {
  breadcrumb : string
  children : React.ReactNode
 }
 const Layout = ({ breadcrumb, children }: LayoutProps) => {
+
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      <header className="bg-gray-200 p-4">
+      <header className="bg-gray-200 p-4 relative">
         <nav className="flex items-center justify-between">
           <div className="flex items-center">
             <div className="mr-4">
@@ -82,7 +91,10 @@ const Layout = ({ breadcrumb, children }: LayoutProps) => {
             <Suspense fallback="Loading...">
             <UserDropdown />
             </Suspense>
-            <CartButton />
+            <Suspense fallback="Loading...">
+              <CartButton />
+            </Suspense>
+
           </div>
         </nav>
       </header>
