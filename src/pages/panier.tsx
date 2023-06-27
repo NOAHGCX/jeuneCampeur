@@ -15,7 +15,7 @@ import LabeledTextField from 'src/core/components/LabeledTextField';
 import { Form, FORM_ERROR } from "src/core/components/Form"
 import createBDC from "src/BDC/mutations/createBDC"
 import createProductBDC from 'src/core/productBDC/mutations/createProductBDC';
-import { PDFDocument, rgb } from 'pdf-lib';
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import updateStats from 'src/stats/mutations/updateStats';
 import { set } from 'zod';
 
@@ -105,81 +105,134 @@ const Panier = () => {
     setShowPayement(false);
   };
 
-  const generateBDCPDF = async (bdc) => {
-    // Créer un nouveau document PDF
-    const doc = await PDFDocument.create();
 
-    // Ajouter une page au document
-    const page = doc.addPage();
+  // Fonction pour générer le PDF de facturation
+const generateInvoicePDF = async (buyerName, purchaseDate, baseAddress, facturationAddress, products) => {
+  console.log("buyerName", buyerName);
+  console.log("purchaseDate", purchaseDate);
+  console.log("baseAddress", baseAddress);
+  console.log("facturationAddress", facturationAddress);
+  console.log("products", products);
 
-    // Définir les options de texte
-    const fontSize = 12;
-    const textOptions = {
-      size: fontSize,
-      font: await doc.embedFont('Helvetica'),
-      color: rgb(0, 0, 0), // Couleur verte
+  // Création d'un nouveau document PDF
+  const pdfDoc = await PDFDocument.create();
+
+  // Définition des polices de caractères
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+  // Fonction pour créer un rectangle avec le texte spécifié
+  const drawRectangle = (x, y, width, height, text, page) => {
+    page.drawText(text, { x, y: y - height + 15, font, size: 12, color: rgb(0, 0, 0) });
+    page.drawRectangle({ x, y, width, height, color: rgb(0.9, 0.9, 0.9) });
+  };
+
+  const drawBaseAddressInfo = (x, y, address, page) => {
+    console.log("addressBasePDF", address);
+    const lineHeight = 15;
+    const fields = [
+      { label: "Nom:", value: `${buyerName}` },
+      { label: "Numéro:", value: address.number.toString() },
+      { label: "Rue:", value: address.road },
+      { label: "Ville:", value: address.city },
+      { label: "Département:", value: address.department },
+      { label: "Pays:", value: address.country },
+      { label: "Code postal:", value: address.postcode.toString() },
+      { label: "Complémentaire:", value: address.complimentary },
+    ];
+
+    console.log("fieldsBase", fields);
+    let currentY = y;
+    fields.forEach((field) => {
+      page.drawText(field.label, { x, y: currentY, font, size: 12, color: rgb(0, 0, 0) });
+      page.drawText(field.value.toString(), { x: x + 120, y: currentY, font, size: 12, color: rgb(0, 0, 0) });
+      currentY -= lineHeight;
+    });
+  };
+
+  const drawFactAddressInfo = (x, y, address, page) => {
+    console.log("addressFactPDF", address);
+    const lineHeight = 15;
+    const fields = [
+      { label: "Nom:", value: `${address.first_name} ${address.last_name}` },
+      { label: "Mail:", value: address.email },
+      { label: "Numéro:", value: address.number.toString() },
+      { label: "Rue:", value: address.road },
+      { label: "Ville:", value: address.city },
+      { label: "Département:", value: address.department },
+      { label: "Pays:", value: address.country },
+      { label: "Code postal:", value: address.postcode.toString() },
+      { label: "Complémentaire:", value: address.complimentary },
+    ];
+    console.log("fieldsFact", fields);
+    let currentY = y;
+    fields.forEach((field) => {
+      page.drawText(field.label, { x, y: currentY, font, size: 12, color: rgb(0, 0, 0) });
+      page.drawText(field.value.toString(), { x: x + 120, y: currentY, font, size: 12, color: rgb(0, 0, 0) });
+      currentY -= lineHeight;
+    });
+  };
+
+  const drawProductList = (x, y, products, page) => {
+    const lineHeight = 15;
+    const pageHeight = 700; // Hauteur maximale d'une page
+    let currentY = y;
+    var totalPriceFinale = 0;
+
+    const drawProductRow = (page, product) => {
+      console.log("product pdf", product);
+      const totalPrice = product.quantity * product.product.price;
+      totalPriceFinale = totalPriceFinale + totalPrice;
+      page.drawText(product.product.name, { x, y: currentY, font, size: 12, color: rgb(0, 0, 0) });
+      page.drawText(product.quantity.toString(), { x: x + 200, y: currentY, font, size: 12, color: rgb(0, 0, 0) });
+      page.drawText(product.product.price.toString(), { x: x + 300, y: currentY, font, size: 12, color: rgb(0, 0, 0) });
+      page.drawText(totalPrice.toString(), { x: x + 400, y: currentY, font, size: 12, color: rgb(0, 0, 0) });
+      currentY -= lineHeight;
     };
 
-    // Ajouter le contenu du BDC à la page
-    page.drawText('Bon de Commande', { x: 50, y: 700, ...textOptions });
-    page.moveDown(0.5);
 
-    page.drawText('Informations du client:', { x: 50, y: 680, ...textOptions });
-    page.drawText(`ID: ${bdc.user.id}`, { x: 50, y: 660, ...textOptions });
-    page.drawText(`Nom d'utilisateur: ${bdc.user.username}`, { x: 50, y: 640, ...textOptions });
-    page.drawText(`Prénom: ${bdc.user.first_name}`, { x: 50, y: 620, ...textOptions });
-    page.drawText(`Nom: ${bdc.user.last_name}`, { x: 50, y: 600, ...textOptions });
-    page.drawText(`Date de naissance: ${bdc.user.birth_date}`, { x: 50, y: 580, ...textOptions });
-    page.drawText(`Email: ${bdc.user.email}`, { x: 50, y: 560, ...textOptions });
-    page.drawText(`Téléphone: ${bdc.user.phone}`, { x: 50, y: 540, ...textOptions });
-
-    page.moveDown(0.5);
-
-    page.drawText('Adresse de livraison:', { x: 50, y: 520, ...textOptions });
-    page.drawText(`Numéro: ${bdc.address_base.number}`, { x: 50, y: 500, ...textOptions });
-    page.drawText(`Rue: ${bdc.address_base.road}`, { x: 50, y: 480, ...textOptions });
-    page.drawText(`Ville: ${bdc.address_base.city}`, { x: 50, y: 460, ...textOptions });
-    page.drawText(`Département: ${bdc.address_base.department}`, { x: 50, y: 440, ...textOptions });
-    page.drawText(`Pays: ${bdc.address_base.country}`, { x: 50, y: 420, ...textOptions });
-    page.drawText(`Code postal: ${bdc.address_base.postcode}`, { x: 50, y: 400, ...textOptions });
-
-    page.moveDown(0.5);
-
-    page.drawText('Adresse de facturation:', { x: 50, y: 380, ...textOptions });
-    page.drawText(`Prénom: ${bdc.address_fact.first_name}`, { x: 50, y: 360, ...textOptions });
-    page.drawText(`Nom: ${bdc.address_fact.last_name}`, { x: 50, y: 340, ...textOptions });
-    page.drawText(`Email: ${bdc.address_fact.email}`, { x: 50, y: 320, ...textOptions });
-    page.drawText(`Numéro: ${bdc.address_fact.number}`, { x: 50, y: 300, ...textOptions });
-    page.drawText(`Rue: ${bdc.address_fact.road}`, { x: 50, y: 280, ...textOptions });
-    page.drawText(`Ville: ${bdc.address_fact.city}`, { x: 50, y: 260, ...textOptions });
-    page.drawText(`Département: ${bdc.address_fact.department}`, { x: 50, y: 240, ...textOptions });
-    page.drawText(`Pays: ${bdc.address_fact.country}`, { x: 50, y: 220, ...textOptions });
-    page.drawText(`Code postal: ${bdc.address_fact.postcode}`, { x: 50, y: 200, ...textOptions });
-
-    page.moveDown(0.5);
-
-    page.drawText('Produits du BDC:', { x: 50, y: 180, ...textOptions });
-
-    // Parcourir chaque produit dans le tableau product_BDC
-    bdc.product_BDC.forEach((product, index) => {
-      const { id, quantity, product: { name, price } } = product;
-
-      const yPos = 160 - index * (fontSize + 10);
-
-      page.drawText(`Product ID: ${id}`, { x: 50, y: yPos, ...textOptions });
-      page.drawText(`Quantity: ${quantity}`, { x: 50, y: yPos - 20, ...textOptions });
-      page.drawText(`Product Name: ${name}`, { x: 50, y: yPos - 40, ...textOptions });
-      page.drawText(`Price: $${price}`, { x: 50, y: yPos - 60, ...textOptions });
-
+    products.forEach((product) => {
+      if (currentY <= lineHeight) {
+        // Créer une nouvelle page si la hauteur est atteinte
+        page= pdfDoc.addPage();
+        currentY = pageHeight - lineHeight;
+      }
+      drawProductRow(page, product);
     });
+    console.log("totalPriceFinale", totalPriceFinale);
+    page.drawText("Prix Total (€)", { x: 50, y: currentY - 10, font, size: 12, color: rgb(0, 0, 0) });
+    page.drawText(totalPriceFinale.toString(), { x: 450, y: currentY - 10, font, size: 12, color: rgb(0, 0, 0) });
+  };
 
-    // Sérialiser le document PDF en Uint8Array
-    const pdfBytes = await doc.save();
+  // Affichage des informations de l'acheteur
+  const page = pdfDoc.addPage();
+  const buyerInfo = `Nom de l'acheteur: ${buyerName}`;
+  const purchaseInfo = `Date de l'achat: ${purchaseDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
+  drawRectangle(50, 750, 400, 30, buyerInfo, page);
+  drawRectangle(420, 750, 200, 30, purchaseInfo, page);
 
-    // Créer un Blob à partir des octets PDF
-    const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+  // Affichage de l'adresse de base
+  page.drawText(`Adresse Livraison`, { x : 340, y : 700, font, size: 15, color: rgb(0, 0, 0) });
+  drawBaseAddressInfo(340, 670, baseAddress, page);
 
-     // Créer un lien de téléchargement
+  // Affichage de l'adresse de facturation
+  page.drawText(`Adresse Facturation`, { x : 50, y : 700, font, size: 15, color: rgb(0, 0, 0) });
+  drawFactAddressInfo(50, 670, facturationAddress, page);
+
+  // Affichage de la liste des produits
+  page.drawText(`Produits`, { x : 50, y : 515, font, size: 15, color: rgb(0, 0, 0) });
+  page.drawText(`Nom`, { x : 50, y : 490, font, size: 13, color: rgb(0, 0, 0) });
+  page.drawText(`Quantité`, { x : 250, y : 490, font, size: 13, color: rgb(0, 0, 0) });
+  page.drawText(`Prix unitaire (€)`, { x : 350, y : 490, font, size: 13, color: rgb(0, 0, 0) });
+  page.drawText(`Prix total (€)`, { x : 450, y : 490, font, size: 13, color: rgb(0, 0, 0) });
+  drawProductList(50, 470, products, page);
+
+  // Génération du document PDF en bytes
+  const pdfBytes = await pdfDoc.save();
+
+  // Créer un Blob à partir des octets PDF
+  const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+
+  // Créer un lien de téléchargement
   const downloadLink = document.createElement('a');
   downloadLink.href = URL.createObjectURL(pdfBlob);
   downloadLink.download = 'document.pdf';
@@ -193,8 +246,7 @@ const Panier = () => {
 
   // Supprimer le lien de téléchargement de la page (facultatif)
   document.body.removeChild(downloadLink);
-  }
-
+};
 
 
 
@@ -515,7 +567,8 @@ const Panier = () => {
                       address_fact: factAddress,
                       product_BDC: card,
                     };
-                    const bdcPDF = generateBDCPDF(bdc);
+                    const buyer = `${bdc.user. first_name} ${bdc.user.last_name}`;
+                    const bdcPDF = generateInvoicePDF(buyer, new Date(), bdc.address_base, bdc.address_fact, bdc.product_BDC);
                     setNumber(number + 1);
                   })
                   .catch((error) => {

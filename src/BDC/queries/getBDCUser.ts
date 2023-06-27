@@ -13,7 +13,9 @@ export default async function getBDCByUser(userId: number) {
           include: {
             product: true
           }
-        }
+        },
+        address_base : true,
+        address_fact : true,
       },
     });
     return bdc;

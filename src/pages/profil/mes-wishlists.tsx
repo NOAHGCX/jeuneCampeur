@@ -57,7 +57,7 @@ const WishlistList = () => {
           <FontAwesomeIcon icon={faPlus} className="mr-2" />
         </button>
       </div>
-      <ul className="mb-8">
+      <ul className="w-500 h-400 text-sm mt-3 rounded-5 sticky overflow-auto list-none marker:scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 border border-gray-300 mb-10 flex-col">
         {wishlists.map((wishlist) => (
           <li
             key={wishlist.id}
