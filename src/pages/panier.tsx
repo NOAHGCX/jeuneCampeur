@@ -17,6 +17,7 @@ import createBDC from "src/BDC/mutations/createBDC"
 import createProductBDC from 'src/core/productBDC/mutations/createProductBDC';
 import { PDFDocument, rgb } from 'pdf-lib';
 import updateStats from 'src/stats/mutations/updateStats';
+import { set } from 'zod';
 
 const Panier = () => {
   const currentUser = useCurrentUser();
@@ -25,6 +26,8 @@ const Panier = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [addressBase, setAddressBase] = useState<any[]>([]);
   const [addressFact, setAddressFact] = useState<any[]>([]);
+  const [baseAddress, setBaseAddress] = useState<any[]>([]);
+  const [factAddress, setFactAddress] = useState<any[]>([]);
   const [newAddress, setNewAddress] = useState<any>(0);
   const [showBaseForm, setShowBaseForm] = useState(false);
   const [showFactForm, setShowFactForm] = useState(false);
@@ -88,11 +91,13 @@ const Panier = () => {
 
   const handleSelectBase = (baseId) => {
     setSelectedBase(baseId.id);
+    setBaseAddress(baseId);
     console.log("selectedBase", selectedBase)
   };
 
   const handleSelectFact = (factId) => {
     setSelectedFact(factId.id);
+    setFactAddress(factId);
     console.log("selectedFact", selectedFact)
   };
 
@@ -478,13 +483,13 @@ const Panier = () => {
 
           <Form
           submitText="Payer"
-          initialValues={{ idAddressBase: "", idAddressFact: "", idUser: ""}}
+          initialValues={{ idAddressBase: "", idAddressFact: "", userId: ""}}
           onSubmit={async (values) => {
             try {
               const BDC = {
                 idAddressBase: parseInt(selectedBase),
                 idAddressFact: parseInt(selectedFact),
-                userId: parseInt(currentUser.id),
+                idUser: parseInt(currentUser.id),
               };
               const bdc = await createBDC(BDC);
               console.log("card", card)
@@ -502,8 +507,8 @@ const Panier = () => {
                     console.log('productCard', productCard);
                     const bdc = {
                       user: currentUser,
-                      address_base: selectedBase,
-                      address_fact: selectedFact,
+                      address_base: baseAddress,
+                      address_fact: factAddress,
                       product_BDC: card,
                     };
                     const bdcPDF = generateBDCPDF(bdc);

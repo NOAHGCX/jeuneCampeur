@@ -26,10 +26,10 @@ export default resolver.pipe(
         sell_year: product.sell_year + quantity,
       },
     });
-    const user = await db.user.findUnique({ where: { userId } })
+    const user = await db.user.findUnique({ where: { id: userId } })
     const updatedUser= await db.user.update({
       where: {
-        id
+        id : userId
       },
       data: {
         purchase_month: user.purchase_month + 1,

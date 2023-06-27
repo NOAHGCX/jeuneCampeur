@@ -34,7 +34,7 @@ const UserInfoPage = () => {
   }
 
   return (
-    <div>
+    <div >
     <header>
       <div className=" bg-cover w-full h-384 bg-center ">
         <h1 className=" ml-144 pt-35 text-72sec text-orange 2 font-bold oldstyle-nums">
@@ -43,7 +43,7 @@ const UserInfoPage = () => {
       </div>
     </header>
     <Layout breadcrumb={"/"}>
-    <main>
+    <main className="flex flex-col h-screen justify-between items-center">
     <div className="flex justify-center">
       <div className="rounded-lg bg-gray-200 p-6 m-4">
         <h1 className="text-2xl font-bold mb-4">Informations de l'utilisateur</h1>
