@@ -1,18 +1,58 @@
 [![Blitz.js](https://raw.githubusercontent.com/blitz-js/art/master/github-cover-photo.png)](https://blitzjs.com)
 
-This is a [Blitz.js](https://github.com/blitz-js/blitz) app.
+Projet réalisé par Tom Beaupuis et Noah Attia
 
-# ****name****
+# jeuneCampeur
 
-## Getting Started
+## Requirement
 
+Install Postgresql with pgAdmin4 (https://www.pgadmin.org/download/)
+Install Node.js (https://nodejs.org/fr/download)
+Install Docker ([https://nodejs.org/fr/download](https://www.docker.com/products/docker-desktop/))
+Install Blitz.js with "npm install -g blitz" (https://blitzjs.com/docs/get-started)
+
+## DB Creation
+
+Go into PgADmin4
+Create a new server
+Create a new db called "masterCamp" (right click on "Databases")
+Create a new user called "superadmin" with password "superadmin" give him every priviliges (right click on "Login/Group Roles"
+
+## Initialiting project
+
+Pull the project repo
+Open a terminal on it and write "npm install"
+Create a new docker "in the terminal":
+  -docker network create
+  -docker-compose -d
+  -check your docker desktop app
+Create database:
+  -blitz prisma migrate dev
+  -blitz db seed (to add fake data)
+  -blitz prisma studio (to check )
+  
 Run your app in the development mode.
-
-```
-blitz dev
-```
-
+  -blitz dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Routing on the website
+
+Main website:
+  -http://localhost:3000/ := main page
+  -http://localhost:3000/auth/login := login page
+  -http://localhost:3000/auth/signup := signup page
+  -http://localhost:3000/auth/forgot-password := forgot-password page
+  -http://localhost:3000/product/[id] := product page
+  -http://localhost:3000/profil/mes-commandes := orders page
+  -http://localhost:3000/profil/mes-wishlists := wishlists page
+  -http://localhost:3000/profil/mes-informations := profil informations page
+  -http://localhost:3000/panier := card page
+Admin website:
+
+## Admin website
+
+There is no security at the moment for the admin page, to make it easier to test
+We only need to add: Page.authenticate = { role: "ADMIN" }, on the end of our components to make it avalaible
 
 ## Environment Variables
 
@@ -28,15 +68,6 @@ Ensure the `.env.test.local` file has required environment variables:
 DATABASE_URL=postgresql://<YOUR_DB_USERNAME>@localhost:5432/masterCamp_test
 ```
 
-## Tests
-
-Runs your tests using Jest.
-
-```
-yarn test
-```
-
-Blitz comes with a test setup using [Vitest](https://vitest.dev/) and [react-testing-library](https://testing-library.com/).
 
 ## Commands
 
@@ -61,7 +92,7 @@ You can read more about it on the [CLI Overview](https://blitzjs.com/docs/cli-ov
 
 ## What's included?
 
-Here is the starting structure of your app.
+Here is the starting structure of the app.
 
 ```
 masterCamp
