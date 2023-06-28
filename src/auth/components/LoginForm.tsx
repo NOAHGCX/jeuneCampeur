@@ -14,9 +14,9 @@ type LoginFormProps = {
 export const LoginForm = (props: LoginFormProps) => {
   const [loginMutation] = useMutation(login)
   return (
-    <div>
-      <h1>Login</h1>
-
+    <div className="h-screen bg-orange-300 flex items-center justify-center">
+      <div className="mx-16 text-center p-4">
+          <h1 className="text-4xl my-3.5">Connexion</h1>
       <Form
         submitText="Login"
         schema={Login}
@@ -47,6 +47,7 @@ export const LoginForm = (props: LoginFormProps) => {
       <div style={{ marginTop: "1rem" }}>
         Or <Link href={Routes.SignupPage()}>Sign Up</Link>
       </div>
+    </div>
     </div>
   )
 }

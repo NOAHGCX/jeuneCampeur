@@ -18,9 +18,7 @@ export default resolver.pipe(
       skip,
       take,
       count: () => db.product.count({ where }),
-      query: (paginateArgs) => db.product.findMany({ ...paginateArgs, where, orderBy, include: {
-          product: true
-        }, }),
+      query: (paginateArgs) => db.product.findMany({ ...paginateArgs, where, orderBy}),
     })
 
     return {

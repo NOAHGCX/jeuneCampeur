@@ -11,11 +11,13 @@ type SignupFormProps = {
 export const SignupForm = (props: SignupFormProps) => {
   const [signupMutation] = useMutation(signup)
   return (
-    <div>
-      <h1>Create an Account</h1>
-
+    <div className="h-screen bg-orange-300 flex items-center justify-center">
+        <div className="w-1/2 p-4 mx-auto">
+          <h1 className="text-4xl text-center font-bold"> Bienvenue jeune Campeur </h1>
+        </div>
       <Form
-        submitText="Create Account"
+        className="w-1/2 p-4 my-4"
+        submitText="Creation de compte"
         initialValues={{ email: "", password: "" }}
         onSubmit={async (values) => {
           try {

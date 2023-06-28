@@ -6,20 +6,17 @@ const Product = z.object({
   name: z
     .string()
     .min(2)
-    .max(30)
     .transform((str) => str.trim()),
   price: z
     .number()
-    .min(2)
-    .max(100),
+    .min(2),
   stock: z
     .number()
-    .min(2)
-    .max(100),
+    .min(2),
   description: z
     .string()
     .min(5)
-    .max(100)
+    .max(1000)
     .transform((str) => str.trim()),
   sell_month: z.number(),
   sell_year: z.number(),
