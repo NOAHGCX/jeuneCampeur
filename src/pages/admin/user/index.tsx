@@ -111,8 +111,6 @@ const TableUser = () => {
         { label: "Nombre de connection", key: "connection_nb" },
         { label: "Nombre d'achat du mois", key: "purchase_month" },
         { label: "Nombre d'achat par an", key: "purchase_year" },
-        { label: "Adresse de base", key: "address_base" },
-        { label: "Adresse de facturation", key: "address_fact" },
         { label: "Créé le", key: "createdAt" },
         { label: "Mis à jour le", key: "updatedAt" },
         { label: "Derniere connection", key: "last_connexion" },

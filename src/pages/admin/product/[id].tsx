@@ -4,10 +4,11 @@ import Layout from "src/core/layouts/Layout"
 import { useCurrentUser } from "src/users/hooks/useCurrentUser"
 import logout from "src/auth/mutations/logout"
 import { useMutation, usePaginatedQuery, useQuery } from "@blitzjs/rpc"
-import { Routes, BlitzPage } from "@blitzjs/next"
+import { Routes, BlitzPage, useParam } from "@blitzjs/next"
 import styles from "src/styles/Home.module.css"
 import Table from "src/core/components/table/Table"
-import getAllCard from "src/pages/admin/card/queries/getAllCard"
+import getProductInformation from "./queries/getProductInformation"
+
 /*
  * This file is just for a pleasant getting started page for your new app.
  * You can delete everything in here and start from scratch if you like.
@@ -38,7 +39,7 @@ const UserInfo = () => {
   } else {
     return (
       <>
-        <Link href={Routes.SignupPage({ role: "user" })} className={styles.button}>
+        <Link href={Routes.SignupPage({ role: "ADMIN" })} className={styles.button}>
           <strong>Sign Up</strong>
         </Link>
         <Link href={Routes.LoginPage()} className={styles.loginButton}>
@@ -49,9 +50,9 @@ const UserInfo = () => {
   }
 }
 
-const TableCard = () => {
+const TableProductUpdate = () => {
   const [keywords, setKeywords] = useState("")
-  const [items, setItems] = useState<any>()
+  var [items, setItems] = useState<any>()
   const [itemsPerPage, setItemsPerPage] = useState(60)
   const [currentOrder, setCurrentOrder] = useState<any>({ id: "asc" })
   const [page, setPage] = useState(0)
@@ -59,29 +60,42 @@ const TableCard = () => {
   const [selectAll, setSelectAll] = useState(false)
   const [loadingMulti, setLoadingMulti] = useState(true)
 
+  const [id, setId] = useState<string | string[] | undefined>("id")
+
+  const idParam = useParam("id")
+  useEffect(() => {
+    setId(idParam)
+  }, [idParam])
+
+
   const queryOptions: any = {
     orderBy: currentOrder,
     skip: itemsPerPage * page,
     take: itemsPerPage,
+    where: { id: parseInt(id as string) || undefined }, // Search query based on the id parameter
+    include: {
+      products: true,
+    },
+  };
+
+  if (keywords !== null && keywords !== undefined && keywords !== '') {
+    queryOptions.where.OR = [
+      { products: { name: keywords } },
+      { products: { price: parseInt(keywords) || undefined } },
+      { products: { stock: parseInt(keywords) || undefined } },
+      { products: { sell_month: parseInt(keywords) || undefined } },
+      { products: { sell_year: parseInt(keywords) || undefined } },
+    ];
   }
 
-  if (keywords !== null && keywords !== undefined && keywords !== "") {
-    queryOptions.where = {
-      OR: [
-        { id: parseInt(keywords) || undefined },
-        { idUser: parseInt(keywords) },
-      ],
-    }
-  }
-
-  const [{ card, count }, { refetch }] = usePaginatedQuery(getAllCard, queryOptions)
+  const [{ product, count }, { refetch }] = usePaginatedQuery(getProductInformation, queryOptions);
 
   useEffect(() => {
-    console.log(card)
+    console.log(product[0])
     console.log(keywords)
     console.log(currentOrder)
-    setItems(card)
-  }, [card, keywords, currentOrder])
+    setItems(product[0])
+  }, [product, keywords, currentOrder])
 
   return (
     <Table
@@ -94,13 +108,16 @@ const TableCard = () => {
       add={""}
       exportKey={[
         { label: "Id", key: "id" },
-        { label: "idUser", key: "idUser" },
-        { label: "Créé le", key: "createdAt" },
-        { label: "Mis à jour le", key: "updatedAt" },
+        { label: "Nom du produit", key: "name" },
+        { label: "Prix", key: "price" },
+        { label: "Stock", key: "stock" },
+        { label: "Description", key: "description" },
+        { label: "Vente du mois de l'item", key: "sell_month" },
+        { label: "Vente de l'année de l'item", key: "sell_year" },
       ]}
-      titre={`Liste des paniers`}
-      key="table_liste_card"
-      id="table_liste_card"
+      titre={`Liste des produits de la wishlist`}
+      key="table_liste_products"
+      id="table_liste_products"
       setItemsPerPage={setItemsPerPage}
       itemsPerPage={itemsPerPage}
       multiSelect={false}
@@ -140,67 +157,115 @@ const TableCard = () => {
           },
         },
         {
-          id: "idUser",
+          id: "name",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "idUser",
-            text: "idUser",
+            colone: "name",
+            text: "Nom de l'item",
             order: true,
-            orderColumn: "idUser",
+            orderColumn: "name",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.idUser,
+            text: (item: any) => item.name,
           },
         },
         {
-          id: "createdAt",
+          id: "price",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "createdAt",
-            text: "Créé le",
+            colone: "price",
+            text: "Prix",
             order: true,
-            orderColumn: "createdAt",
+            orderColumn: "price",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.createdAt.toLocaleString(),
+            text: (item: any) => item.price,
           },
         },
         {
-          id: "updatedAt",
+          id: "stock",
           th: {
             currentOrder,
             setCurrentOrder,
-            colone: "updatedAt",
-            text: "Mis à jour le",
+            colone: "stock",
+            text: "Stock",
             order: true,
-            orderColumn: "updatedAt",
+            orderColumn: "stock",
             thSpanClasses: "justify-content-between",
           },
           td: {
-            text: (item: any) => item.updatedAt.toLocaleString(),
+            text: (item: any) => item.stock,
+          },
+        },
+        {
+          id: "description",
+          th: {
+            currentOrder,
+            setCurrentOrder,
+            colone: "description",
+            text: "Description",
+            order: true,
+            orderColumn: "description",
+            thSpanClasses: "justify-content-between",
+          },
+          td: {
+            text: (item: any) => item.description,
+          },
+        },
+        {
+          id: "sell_month",
+          th: {
+            currentOrder,
+            setCurrentOrder,
+            colone: "sell_month",
+            text: "Vente au mois",
+            order: true,
+            orderColumn: "sell_month",
+            thSpanClasses: "justify-content-between",
+          },
+          td: {
+            text: (item: any) => item.sell_month,
+          },
+        },
+        {
+          id: "sell_year",
+          th: {
+            currentOrder,
+            setCurrentOrder,
+            colone: "sell_year",
+            text: "Vente sur un an",
+            order: true,
+            orderColumn: "sell_year",
+            thSpanClasses: "justify-content-between",
+          },
+          td: {
+            text: (item: any) => item.sell_year,
           },
         },
       ]}
-      empty="Aucune adresse de facturation."
+      empty="Aucun produit."
     />
   )
 }
 
-const HomeCard: BlitzPage = () => {
+
+
+
+const HomeProductUpdate: BlitzPage = () => {
   return (
     <Layout title="Home">
       <Suspense fallback="Loading...">
         <UserInfo />
       </Suspense>
       <Suspense fallback="Loading...">
-        <TableCard />
+        <TableProductUpdate />
       </Suspense>
     </Layout>
   )
 }
 
-export default HomeCard
+export default HomeProductUpdate

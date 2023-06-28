@@ -301,7 +301,7 @@ const TableProduct = () => {
               {
                 type: "link",
                 text: () => "Afficher",
-                href: (item: any) => `/patient/${item.id}`,
+                href: (item: any) => `//admin/product/${item.id}`,
               },
             ],
           },
