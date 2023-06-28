@@ -337,44 +337,6 @@ const TableAddressFact = () => {
             text: (item: any) => item.updatedAt.toLocaleString(),
           },
         },
-        {
-          id: "actions",
-          th: {
-            currentOrder,
-            setCurrentOrder,
-            text: "",
-            order: true,
-            thSpanClasses: "justify-content-between",
-          },
-          td: {
-            type: "dropdown",
-            text: (item: any) => (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                height="20"
-                width="20"
-                className="m-auto"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2z m0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                />
-              </svg>
-            ),
-            dropdown: [
-              {
-                type: "link",
-                text: () => "Afficher",
-                href: (item: any) => `/patient/${item.id}`,
-              },
-            ],
-          },
-        },
       ]}
       empty="Aucune adresse de facturation."
     />
