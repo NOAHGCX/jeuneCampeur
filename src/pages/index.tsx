@@ -134,25 +134,28 @@ const handleRangeChange = (minValue, maxValue) => {
 const Home: BlitzPage = () => {
 
   return (
+
     <div>
     <header>
-      <div className=" bg-cover w-full h-384 bg-center ">
-        <h1 className=" ml-144 pt-35 text-72sec text-orange 2 font-bold oldstyle-nums">
+      <div className="bg-header bg-cover w-full h-384 bg-center">
+        <h1 className="ml-144 pt-35 text-72sec text-orange 2 font-bold oldstyle-nums">
           jeune<span className="text-white ">Campeur </span>{" "}
         </h1>
       </div>
     </header>
+
     <Layout breadcrumb={"/"}>
-    <div className=" container_menu mx-auto flex mt-60 mb-60 ">
-    <div className={styles.buttonContainer}>
-                <Suspense fallback={"string"}>
+      <div className="container_menu mx-auto flex flex-col min-h-screen mt-43">
+        <div className={styles.buttonContainer}>
+              <Suspense fallback={"string"}>
                   <ProductComponent />
-                </Suspense>
-              </div>
-    </div>
+              </Suspense>
+        </div>
+      </div>
     </Layout>
+
     <footer>
-      <div className="bg-dark bg-cover h-268 bg-center">
+      <div className=" bg-dark bg-cover h-268 bg-center">
         <div className="container mx-auto flex-col flex justify-center items-center h-268">
           <h1 className="text-3xl text-orange">
             jeune<span className="text-white ">Campeur </span>{" "}
@@ -165,6 +168,8 @@ const Home: BlitzPage = () => {
       </div>
     </footer>
   </div>
+
+
   )
 }
 Home.authenticate = false

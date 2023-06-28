@@ -68,7 +68,7 @@ const ProductPage: BlitzPage = () => {
       </Layout>
 
       <footer>
-        <div className="bg-header bg-dark bg-cover h-268 bg-center">
+        <div className=" bg-dark bg-cover h-268 bg-center">
           <div className="container mx-auto flex-col flex justify-center items-center h-268">
             <h1 className="text-3xl text-orange">
               jeune<span className="text-white ">Campeur </span>{" "}

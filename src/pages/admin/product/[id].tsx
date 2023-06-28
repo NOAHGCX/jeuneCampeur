@@ -11,7 +11,7 @@ type ProductFormProps = {
   onSuccess?: () => void
 }
 
-export const ProductForm = (props: ProductFormProps) => {
+export const ProductUpdateForm = (props: ProductFormProps) => {
 
   const [id, setId] = useState<string | undefined>(undefined)
   const idParam = useParam("id")
@@ -71,4 +71,4 @@ export const ProductForm = (props: ProductFormProps) => {
   )
 }
 
-export default ProductForm
+export default ProductUpdateForm

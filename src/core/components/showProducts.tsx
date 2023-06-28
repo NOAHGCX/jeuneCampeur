@@ -333,7 +333,7 @@ const Products = ({
       </div>
       {lastPage > 1 ? (
         <div className="relative 1024:w-890 1440:w-1190 1660:w-1444 1880:w-1444  2200:w-1892  2560:w-2180">
-          <div className=" flex items-stretch mt-29  absolute right-0">
+          <div className=" flex items-stretch  absolute right-0">
             <button
               disabled={page === 0}
               onClick={goToPreviousPage}
