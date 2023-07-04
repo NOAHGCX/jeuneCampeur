@@ -23,8 +23,8 @@ Create a new user called "superadmin" with password "superadmin" give him every 
 Pull the project repo
 Open a terminal on it and write "npm install"
 Create a new docker "in the terminal":
-  -docker network create
-  -docker-compose -d
+  -docker network create extern
+  -docker-compose up -d
   -check your docker desktop app
 Create database:
   -blitz prisma migrate dev
